@@ -139,13 +139,6 @@ Every run is saved to `runs/<timestamp>-<mode>/` (`console.log` + `report.json`)
 
 The original starter is still here: `eval/` (an eval harness) and `agent/1-tools.ts`, `browser.ts` and `7-index.ts` (a browser agent). See [basically-ai-harness](https://github.com/TejasQ/basically-ai-harness) for the walkthrough.
 
-## What's next
-
-- Per-role cost in yen, not just tokens
-- A real approval channel (Slack / Discord) for `ask_user`
-- An eval set of several tasks × several Lead models, so the comparison is a rate, not a single run
-- Git worktree isolation per engineer, so several engineers can run in parallel
-
 ## Credits
 
 - Starter harness: [basically-ai-harness](https://github.com/TejasQ/basically-ai-harness) by Tejas Kumar (MIT)
