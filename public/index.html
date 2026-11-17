@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No Micromanaging — AI Decelerator Harness</title>
+    <style>
+      :root {
+        --bg: #080c17;
+        --panel: #0f1629;
+        --card: #151e36;
+        --border: #243152;
+        --text: #e6edf7;
+        --muted: #8ea0c2;
+        --red: #fb7185;
+        --red-bg: rgba(244, 63, 94, 0.14);
+        --red-border: rgba(244, 63, 94, 0.45);
+        --green: #34d399;
+        --green-bg: rgba(52, 211, 153, 0.12);
+        --green-border: rgba(52, 211, 153, 0.42);
+        --blue: #60a5fa;
+        --blue-bg: rgba(96, 165, 250, 0.14);
+        --purple: #c084fc;
+        --cyan: #38bdf8;
+        --amber: #fbbf24;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top right, #16213e 0%, var(--bg) 55%);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(15, 22, 41, 0.9);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .badge-pill {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--red-bg);
+        color: var(--red);
+        border: 1px solid var(--red-border);
+      }
+      .brand p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+      select, button, input[type="text"], textarea {
+        font: inherit;
+        color: var(--text);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      button {
+        cursor: pointer;
+        font-weight: 600;
+        transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        border-color: #466099;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        border-color: transparent;
+      }
+      .btn-secondary {
+        background: #1b2847;
+      }
+      .btn-backup {
+        background: rgba(52, 211, 153, 0.14);
+        border-color: var(--green-border);
+        color: var(--green);
+      }
+      .btn-stop {
+        background: var(--red-bg);
+        border-color: var(--red-border);
+        color: var(--red);
+      }
+      .toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--muted);
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        border-radius: 8px;
+      }
+
+      .main {
+        padding: 16px 24px 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .task-bar {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .task-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--amber);
+        margin-bottom: 3px;
+      }
+      .task-text {
+        font-size: 13px;
+        line-height: 1.45;
+        color: #d6e0f0;
+        white-space: pre-wrap;
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .kpi-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .kpi-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .kpi-pair {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .kpi-side {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .kpi-sub {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .val-bad { color: var(--red); }
+      .val-good { color: var(--green); }
+      .val-neutral { color: var(--text); }
+
+      .arena {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        flex: 1;
+        min-height: 460px;
+      }
+      .lane {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .lane.bare { border-top: 3px solid var(--red); }
+      .lane.harness { border-top: 3px solid var(--green); }
+
+      .lane-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(21, 30, 54, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .lane-title {
+        font-size: 15px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .status-chip {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .status-chip.running {
+        color: var(--amber);
+        border-color: rgba(251, 191, 36, 0.45);
+        background: rgba(251, 191, 36, 0.12);
+      }
+      .status-chip.waiting {
+        color: var(--blue);
+        border-color: rgba(96, 165, 250, 0.55);
+        background: var(--blue-bg);
+        animation: pulse 1.3s infinite;
+      }
+      .status-chip.pass {
+        color: var(--green);
+        border-color: var(--green-border);
+        background: var(--green-bg);
+      }
+      .status-chip.fail {
+        color: var(--red);
+        border-color: var(--red-border);
+        background: var(--red-bg);
+      }
+
+      .org-bar {
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        background: rgba(11, 16, 32, 0.55);
+        flex-wrap: wrap;
+      }
+      .actor-pill {
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        font-weight: 600;
+        transition: all 0.15s ease;
+      }
+      .actor-pill.active-lead { border-color: var(--purple); color: var(--purple); background: rgba(192, 132, 252, 0.12); }
+      .actor-pill.active-engineer { border-color: var(--cyan); color: var(--cyan); background: rgba(56, 189, 248, 0.12); }
+      .actor-pill.active-qa { border-color: var(--amber); color: var(--amber); background: rgba(251, 191, 36, 0.12); }
+      .actor-pill.active-user { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+      .actor-pill.active-harness { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+      .user-modal {
+        margin: 12px 14px 0;
+        padding: 14px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(124, 58, 237, 0.14));
+        border: 1px solid rgba(96, 165, 250, 0.65);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      .user-modal h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+        color: var(--blue);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .user-modal .q-text {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+      .user-options {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .opt-btn {
+        text-align: left;
+        background: rgba(15, 22, 41, 0.9);
+        border: 1px solid rgba(96, 165, 250, 0.35);
+        padding: 8px 10px;
+        font-size: 12.5px;
+        font-weight: 500;
+      }
+      .opt-btn:hover {
+        border-color: var(--blue);
+        background: rgba(37, 99, 235, 0.22);
+      }
+      .opt-btn.recommended {
+        border-color: var(--green-border);
+        background: rgba(52, 211, 153, 0.12);
+        color: #a7f3d0;
+        font-weight: 600;
+      }
+      .custom-reply {
+        display: flex;
+        gap: 8px;
+      }
+      .custom-reply input {
+        flex: 1;
+      }
+
+      .feed {
+        padding: 12px 14px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 560px;
+      }
+      .empty-hint {
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        margin: 48px 16px;
+        line-height: 1.6;
+      }
+      .ev {
+        border-radius: 8px;
+        padding: 9px 11px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        font-size: 12.5px;
+        line-height: 1.45;
+        animation: fadeIn 0.18s ease-out;
+      }
+      .ev.brake {
+        background: var(--red-bg);
+        border-color: var(--red-border);
+        box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.18);
+      }
+      .ev.violation {
+        background: rgba(251, 146, 60, 0.12);
+        border-color: rgba(251, 146, 60, 0.45);
+      }
+      .ev.test-pass {
+        background: var(--green-bg);
+        border-color: var(--green-border);
+      }
+      .ev.test-fail {
+        background: var(--red-bg);
+        border-color: var(--red-border);
+      }
+      .ev.user-ev {
+        background: var(--blue-bg);
+        border-color: rgba(96, 165, 250, 0.4);
+      }
+      .ev-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 3px;
+      }
+      .ev-role {
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.03em;
+      }
+      .role-lead { color: var(--purple); }
+      .role-engineer { color: var(--cyan); }
+      .role-qa { color: var(--amber); }
+      .role-user { color: var(--blue); }
+      .role-harness { color: var(--red); }
+      .ev-time {
+        font-size: 11px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .ev-title {
+        font-weight: 600;
+        color: var(--text);
+        word-break: break-word;
+      }
+      .ev-detail {
+        margin-top: 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11.5px;
+        color: #b8c7e0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+      }
+      @media (max-width: 1024px) {
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .arena { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <h1>
+          🛑 No Micromanaging
+          <span class="badge-pill">AI Decelerator Harness</span>
+        </h1>
+        <p>Stopping Lead Agents from touching code — forcing User Alignment, Team Delegation &amp; Independent QA</p>
+      </div>
+      <div class="controls">
+        <select id="modelSelect" title="Model on ai& Inference"></select>
+        <label class="toggle-wrap" title="Pause on ask_user in the Harness lane so you can answer live on stage">
+          <input type="checkbox" id="interactiveToggle" checked />
+          Interactive User Layer
+        </label>
+        <button id="btnRunBoth" class="btn-primary">▶ Run Before vs After</button>
+        <button id="btnRunHarness" class="btn-secondary">▶ Run Harness Only</button>
+        <button id="btnReplay" class="btn-backup" disabled>⚡ Replay Saved Backup</button>
+        <button id="btnStop" class="btn-stop" disabled>⏹ Stop</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="task-bar">
+        <div>
+          <div class="task-label">📋 Urgent Launch Request (Identical Prompt &amp; Model on Both Sides)</div>
+          <div class="task-text" id="taskText">Loading...</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Lead Touched Repo / Tests</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareExec" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessExec" class="val-neutral">—</span></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Team Delegations</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareDel" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessDel" class="val-neutral">—</span></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Decelerator Brakes Fired</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareBrakes" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessBrakes" class="val-neutral">—</span></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">User Alignment (Ask First)</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareUser" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessUser" class="val-neutral">—</span></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Independent QA Verified</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareQa" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessQa" class="val-neutral">—</span></div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Hidden Test Suite</div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTests" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTests" class="val-neutral">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arena">
+        <!-- LEFT LANE: BARE LEAD -->
+        <section class="lane bare">
+          <div class="lane-header">
+            <div class="lane-title">⚠️ BEFORE · Bare Tech Lead (No Harness)</div>
+            <span id="statusBare" class="status-chip">Idle</span>
+          </div>
+          <div class="org-bar" id="orgBare">
+            <span class="actor-pill" data-actor="user">🧑 User</span>
+            <span>↔</span>
+            <span class="actor-pill" data-actor="lead">👔 Lead</span>
+            <span>→</span>
+            <span class="actor-pill" data-actor="engineer">🔧 Engineer</span>
+            <span>·</span>
+            <span class="actor-pill" data-actor="qa">🧪 QA</span>
+          </div>
+          <div id="userModalBare"></div>
+          <div class="feed" id="feedBare">
+            <div class="empty-hint">Click <b>Run Before vs After</b> to watch what the bare Lead does under launch pressure, or <b>Replay Saved Backup</b> for an instant offline demo.</div>
+          </div>
+        </section>
+
+        <!-- RIGHT LANE: NO MICROMANAGING HARNESS -->
+        <section class="lane harness">
+          <div class="lane-header">
+            <div class="lane-title">🛡️ AFTER · No Micromanaging Harness</div>
+            <span id="statusHarness" class="status-chip">Idle</span>
+          </div>
+          <div class="org-bar" id="orgHarness">
+            <span class="actor-pill" data-actor="user">🧑 User Layer</span>
+            <span>↔</span>
+            <span class="actor-pill" data-actor="harness">🛑 Decelerator</span>
+            <span>↔</span>
+            <span class="actor-pill" data-actor="lead">👔 Lead</span>
+            <span>→</span>
+            <span class="actor-pill" data-actor="engineer">🔧 Engineer</span>
+            <span>·</span>
+            <span class="actor-pill" data-actor="qa">🧪 QA</span>
+          </div>
+          <div id="userModalHarness"></div>
+          <div class="feed" id="feedHarness">
+            <div class="empty-hint">Same model, same prompt, same tools — except the <b>AI Decelerator</b> blocks DIY shortcuts, forces User alignment, and enforces independent QA.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let currentSessionId = null;
+      let eventSource = null;
+      let defaultUserRules = "";
+      let backupPair = null;
+
+      const ROLE_META = {
+        lead: { label: "👔 LEAD", cls: "role-lead" },
+        engineer: { label: "🔧 ENGINEER", cls: "role-engineer" },
+        qa: { label: "🧪 QA", cls: "role-qa" },
+        user: { label: "🧑 USER", cls: "role-user" },
+        harness: { label: "🛑 DECELERATOR", cls: "role-harness" },
+      };
+
+      const DIRECT_EXEC_NAMES = new Set(["list_files", "read_file", "write_file", "run_tests"]);
+
+      function esc(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      async function loadConfig() {
+        const res = await fetch("/api/config");
+        const cfg = await res.json();
+        $("taskText").textContent = cfg.defaultTask;
+        defaultUserRules = cfg.defaultUserRules;
+
+        const sel = $("modelSelect");
+        sel.innerHTML = "";
+        for (const m of cfg.models) {
+          const opt = document.createElement("option");
+          opt.value = m;
+          opt.textContent = m;
+          if (m === cfg.defaultLeadModel) opt.selected = true;
+          sel.appendChild(opt);
+        }
+
+        const bRes = await fetch("/api/backups");
+        const bData = await bRes.json();
+        if (bData.bare && bData.harness) {
+          backupPair = { bare: bData.bare, harness: bData.harness };
+          $("btnReplay").disabled = false;
+        }
+      }
+
+      function setRunning(running) {
+        $("btnRunBoth").disabled = running;
+        $("btnRunHarness").disabled = running;
+        $("btnReplay").disabled = running || !backupPair;
+        $("btnStop").disabled = !running;
+      }
+
+      function resetUI(modes) {
+        if (modes.includes("bare")) {
+          $("feedBare").innerHTML = "";
+          $("userModalBare").innerHTML = "";
+          $("statusBare").className = "status-chip";
+          $("statusBare").textContent = "Queued";
+          $("kpiBareExec").textContent = "—";
+          $("kpiBareDel").textContent = "—";
+          $("kpiBareBrakes").textContent = "—";
+          $("kpiBareUser").textContent = "—";
+          $("kpiBareQa").textContent = "—";
+          $("kpiBareTests").textContent = "—";
+        }
+        if (modes.includes("harness")) {
+          $("feedHarness").innerHTML = "";
+          $("userModalHarness").innerHTML = "";
+          $("statusHarness").className = "status-chip";
+          $("statusHarness").textContent = "Queued";
+          $("kpiHarnessExec").textContent = "—";
+          $("kpiHarnessDel").textContent = "—";
+          $("kpiHarnessBrakes").textContent = "—";
+          $("kpiHarnessUser").textContent = "—";
+          $("kpiHarnessQa").textContent = "—";
+          $("kpiHarnessTests").textContent = "—";
+        }
+      }
+
+      function highlightActor(mode, role) {
+        const bar = $(mode === "bare" ? "orgBare" : "orgHarness");
+        for (const el of bar.querySelectorAll(".actor-pill")) {
+          const actor = el.getAttribute("data-actor");
+          el.className = "actor-pill" + (actor === role ? ` active-${role}` : "");
+        }
+      }
+
+      function appendEvent(mode, ev) {
+        const feed = $(mode === "bare" ? "feedBare" : "feedHarness");
+        highlightActor(mode, ev.role);
+
+        const meta = ROLE_META[ev.role] || { label: ev.role, cls: "" };
+        const div = document.createElement("div");
+
+        let extraCls = "";
+        if (ev.kind === "brake") extraCls = "brake";
+        else if (ev.kind === "test_result") extraCls = ev.passed ? "test-pass" : "test-fail";
+        else if (ev.kind === "user_question" || ev.kind === "user_answer") extraCls = "user-ev";
+        else if (
+          mode === "bare" &&
+          ev.role === "lead" &&
+          ev.kind === "tool_call" &&
+          Array.from(DIRECT_EXEC_NAMES).some((n) => ev.title.startsWith(n))
+        ) {
+          extraCls = "violation";
+        }
+
+        div.className = `ev ${extraCls}`;
+        const sec = (ev.ts / 1000).toFixed(1) + "s";
+        const badge = ev.brakeKind ? ` <span class="badge-pill">${esc(ev.brakeKind)}</span>` : "";
+        const violationBadge =
+          extraCls === "violation" ? ` <span class="badge-pill">DIY MICROMANAGE</span>` : "";
+
+        div.innerHTML = `
+          <div class="ev-head">
+            <span class="ev-role ${meta.cls}">${meta.label}${badge}${violationBadge}</span>
+            <span class="ev-time">${sec}</span>
+          </div>
+          <div class="ev-title">${esc(ev.title)}</div>
+          ${ev.detail && ev.kind !== "user_question" ? `<div class="ev-detail">${esc(ev.detail.slice(0, 700))}</div>` : ""}
+        `;
+        feed.appendChild(div);
+        feed.scrollTop = feed.scrollHeight;
+      }
+
+      function showUserModal(mode, questionId, q) {
+        const host = $(mode === "bare" ? "userModalBare" : "userModalHarness");
+        const status = $(mode === "bare" ? "statusBare" : "statusHarness");
+        status.className = "status-chip waiting";
+        status.textContent = "Waiting for User";
+
+        const optsHtml = (q.options || [])
+          .map(
+            (o, idx) =>
+              `<button class="opt-btn" data-ans="${esc(o)}">[${idx + 1}] ${esc(o)}</button>`,
+          )
+          .join("");
+
+        host.innerHTML = `
+          <div class="user-modal">
+            <h3>🧑 User Communication Layer · Decision Needed</h3>
+            <div class="q-text">${esc(q.question)}</div>
+            <div class="user-options">
+              <button class="opt-btn recommended" data-ans="${esc(defaultUserRules)}">
+                ✨ Recommended Launch Policy: ${esc(defaultUserRules)}
+              </button>
+              ${optsHtml}
+            </div>
+            <div class="custom-reply">
+              <input type="text" id="customReplyInput_${mode}" placeholder="Or type a custom rule for the Lead..." />
+              <button class="btn-primary" id="customReplyBtn_${mode}">Send</button>
+            </div>
+          </div>
+        `;
+
+        const sendReply = async (answer) => {
+          host.innerHTML = "";
+          status.className = "status-chip running";
+          status.textContent = "Running";
+          await fetch("/api/reply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId: currentSessionId, questionId, answer }),
+          });
+        };
+
+        for (const btn of host.querySelectorAll(".opt-btn")) {
+          btn.addEventListener("click", () => sendReply(btn.getAttribute("data-ans")));
+        }
+        $(`customReplyBtn_${mode}`).addEventListener("click", () => {
+          const val = $(`customReplyInput_${mode}`).value.trim();
+          if (val) sendReply(val);
+        });
+        $(`customReplyInput_${mode}`).addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const val = e.target.value.trim();
+            if (val) sendReply(val);
+          }
+        });
+      }
+
+      function updateScoreboard(mode, rep) {
+        const isBare = mode === "bare";
+        const p = isBare ? "Bare" : "Harness";
+        const direct = rep.leadExecAttempts - rep.leadExecBlocked;
+        const totalDel = (rep.delegationsEngineer || 0) + (rep.delegationsQa || 0);
+
+        const execEl = $(`kpi${p}Exec`);
+        execEl.textContent = `${direct}x` + (rep.leadExecBlocked ? ` (${rep.leadExecBlocked} braked)` : "");
+        execEl.className = direct === 0 ? "val-good" : "val-bad";
+
+        const delEl = $(`kpi${p}Del`);
+        delEl.textContent =
+          totalDel === 0
+            ? `0 (Lead coded)`
+            : `${totalDel} (${rep.delegationsEngineer} eng · ${rep.delegationsQa} qa)`;
+        delEl.className = totalDel > 0 && rep.leadWrites === 0 ? "val-good" : "val-bad";
+
+        const brakeEl = $(`kpi${p}Brakes`);
+        brakeEl.textContent = String(rep.brakes.length);
+        brakeEl.className = isBare ? "val-neutral" : rep.brakes.length > 0 ? "val-good" : "val-neutral";
+
+        const userEl = $(`kpi${p}User`);
+        userEl.textContent = rep.userClarified ? `✓ (${rep.userQuestions}x)` : "✗ Guessed";
+        userEl.className = rep.userClarified ? "val-good" : "val-bad";
+
+        const qaEl = $(`kpi${p}Qa`);
+        qaEl.textContent = rep.qaVerified ? "✓ Passed" : "✗ Unverified";
+        qaEl.className = rep.qaVerified ? "val-good" : "val-bad";
+
+        const testEl = $(`kpi${p}Tests`);
+        testEl.textContent = `${rep.finalTests.pass}/${rep.finalTests.total}`;
+        testEl.className = rep.finalTests.passed ? "val-good" : "val-bad";
+
+        const healthy = rep.finalTests.passed && direct === 0 && rep.qaVerified && rep.userClarified;
+        const status = $(`status${p}`);
+        status.className = "status-chip " + (healthy ? "pass" : "fail");
+        status.textContent = healthy
+          ? `${rep.seconds}s · Clean Delegation ✓`
+          : `${rep.seconds}s · ${direct > 0 ? "Micromanaged ✗" : "Failed ✗"}`;
+      }
+
+      function attachStream(sessionId) {
+        if (eventSource) eventSource.close();
+        eventSource = new EventSource(`/api/events?sessionId=${encodeURIComponent(sessionId)}`);
+
+        eventSource.onmessage = (msg) => {
+          const data = JSON.parse(msg.data);
+          if (data.type === "phase_start") {
+            const st = $(data.mode === "bare" ? "statusBare" : "statusHarness");
+            st.className = "status-chip running";
+            st.textContent = "Running…";
+          } else if (data.type === "timeline") {
+            appendEvent(data.mode, data.event);
+          } else if (data.type === "user_question") {
+            showUserModal(data.mode, data.questionId, data.question);
+          } else if (data.type === "user_answered") {
+            $(data.mode === "bare" ? "userModalBare" : "userModalHarness").innerHTML = "";
+          } else if (data.type === "phase_done") {
+            updateScoreboard(data.mode, data.report);
+          } else if (data.type === "all_done" || data.type === "stopped") {
+            setRunning(false);
+            eventSource.close();
+            loadConfig(); // refresh saved backup availability
+          }
+        };
+
+        eventSource.onerror = () => {
+          setRunning(false);
+          eventSource?.close();
+        };
+      }
+
+      async function startRun(mode) {
+        const modes = mode === "both" ? ["bare", "harness"] : [mode];
+        resetUI(modes);
+        setRunning(true);
+        const res = await fetch("/api/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode,
+            model: $("modelSelect").value,
+            interactive: $("interactiveToggle").checked,
+          }),
+        });
+        const data = await res.json();
+        currentSessionId = data.sessionId;
+        attachStream(currentSessionId);
+      }
+
+      async function startReplay() {
+        if (!backupPair) return;
+        resetUI(["bare", "harness"]);
+        setRunning(true);
+        const res = await fetch("/api/replay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(backupPair),
+        });
+        const data = await res.json();
+        currentSessionId = data.sessionId;
+        attachStream(currentSessionId);
+      }
+
+      $("btnRunBoth").addEventListener("click", () => startRun("both"));
+      $("btnRunHarness").addEventListener("click", () => startRun("harness"));
+      $("btnReplay").addEventListener("click", startReplay);
+      $("btnStop").addEventListener("click", async () => {
+        if (!currentSessionId) return;
+        await fetch("/api/stop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: currentSessionId }),
+        });
+        setRunning(false);
+      });
+
+      loadConfig();
+    </script>
+  </body>
+</html>

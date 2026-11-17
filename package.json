@@ -3,7 +3,16 @@
   "type": "module",
   "scripts": {
     "eval": "tsx eval/5-index.ts",
-    "agent": "tsx agent/7-index.ts"
+    "agent": "tsx agent/7-index.ts",
+    "team": "tsx agent/8-team.ts --mode both",
+    "team:before": "tsx agent/8-team.ts --mode bare",
+    "team:after": "tsx agent/8-team.ts --mode harness",
+    "team:replay": "tsx agent/8-team.ts --replay",
+    "team:runs": "tsx agent/8-team.ts --runs",
+    "demo": "tsx agent/server.ts",
+    "models": "tsx agent/list-models.ts",
+    "test": "node --import tsx --test agent/guardrails.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^25.3.5",

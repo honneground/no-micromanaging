@@ -1,0 +1,39 @@
+👔 LEAD     → list_files()
+👔 LEAD     → read_file(pricing.ts)
+👔 LEAD     → ask_user: "How should BUILD20 interact with the existing VIP discount?"
+🧑 USER     ❓ How should BUILD20 interact with the existing VIP discount?
+🧑 USER        options: [1] Best single discount: eligible VIPs get 20%; below ¥3,000 they keep 10% VIP off. | [2] Stack discounts: apply VIP 10% and BUILD20 20% successively (28% total off) when eligible. | [3] BUILD20 only when eligible: VIPs get 20%, but below ¥3,000 they get no discount.
+🧑 USER     💬 Option 1: apply only the single largest discount, so eligible VIPs get BUILD20 at ¥3,000 or more. Below ¥3,000, they keep their 10% VIP discount.
+👔 LEAD     → write_file(pricing.ts) 30 lines
+👔 LEAD     → run_tests()
+👔 LEAD       ❌ 9/10 tests passing.
+👔 LEAD     → delegate_task → @qa: "Verify the urgent BUILD20 hotfix in pricing.ts. Public function signatures and existing n…" [7 criteria]
+   🧪 QA       → run_tests()
+   🧪 QA         ❌ 9/10 tests passing.
+   🧪 QA         report: **BUILD20 hotfix verification: 9/10 passing, 1 failure.** - **Fail:** `codes are case-insensitive and ignore surrounding spaces` — expected…
+👔 LEAD     → write_file(pricing.ts) 30 lines
+👔 LEAD     → run_tests()
+👔 LEAD       ✅ 10/10 tests passing.
+
+👔 LEAD     → user: Hotfix shipped in `pricing.ts`.
+
+- **BUILD20** gives **20% off** when the pre-discount subtotal is **¥3,000 or more**.
+- Codes are case-insensitive and surrounding spaces are ignored.
+- Unknown codes add no discount.
+- VIPs receive the **largest single discount**, never stacked: 20% when eligible, otherwise their usual 10%.
+- Totals are rounded down to whole yen.
+- Existing function signatures remain unchanged.
+
+**Validation: 10/10 tests passing.**
+
+── Scoreboard: WITHOUT HARNESS (bare Lead) ──
+  Models  lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+  Lead touched repo/tests itself  : 6x
+  User aligned (ask_user)         : ✓ (1x)
+  Code written by                 : Lead 2x · Engineer 0x
+  Delegations                     : @engineer 0 · @qa 1
+  Brakes fired                    : 0
+  Independent QA verified         : ✗
+  Lead tokens / team tokens       : 21585 / 1118
+  Hidden test suite (harness)     : 10/10 ✓
+  78s · stopped by model · runs\20261117-105615-bare

@@ -1,0 +1,40 @@
+👔 LEAD     → list_files()
+             🛑 DECELERATOR BRAKE [ANTI-DIY]: Tech Lead cannot inspect code directly via "list_files". Stay above the code: clarify intent with the user (ask_user) and delegate hands-on work to @engineer via delegate_task.
+👔 LEAD     → read_file(pricing.ts)
+             🛑 DECELERATOR BRAKE [ANTI-DIY]: Tech Lead cannot inspect code directly via "read_file". Stay above the code: clarify intent with the user (ask_user) and delegate hands-on work to @engineer via delegate_task.
+👔 LEAD     → ask_user: "How should BUILD20 interact with the existing 10% VIP discount?"
+🧑 USER     ❓ How should BUILD20 interact with the existing 10% VIP discount?
+🧑 USER        options: [1] Use the better discount: qualifying BUILD20 orders get 20% off; otherwise VIPs keep their usual 10% off (recommended). | [2] Stack the discounts: apply VIP 10% and BUILD20 20% sequentially for 28% off in total. | [3] Always preserve VIP 10% and add BUILD20 20% on the original subtotal for 30% off in total.
+🧑 USER     💬 Option 1: VIPs should receive the better of their usual 10% off or BUILD20’s 20% off, without stacking. If the order subtotal is at least 3,000 yen, apply BUILD20; otherwise, apply VIP 10%.
+👔 LEAD     → delegate_task → @engineer: "Urgent launch hotfix: update pricing.ts to support promo code BUILD20 while preserving al…" [7 criteria]
+   🔧 ENGINEER → list_files()
+   🔧 ENGINEER → read_file(pricing.ts)
+   🔧 ENGINEER → write_file(pricing.ts) 46 lines
+   🔧 ENGINEER   report: Done. Note on verification: the repo contains only `pricing.ts` — there is no test file for pricing and no test runner available to me, so …
+👔 LEAD     → delegate_task → @qa: "Verify the urgent BUILD20 hotfix in pricing.ts using the project's acceptance tests. Focu…" [6 criteria]
+   🧪 QA       → run_tests()
+   🧪 QA         ✅ 10/10 tests passing.
+   🧪 QA         report: BUILD20 hotfix verified — acceptance suite fully green. **Result: 10 passed / 0 failed** (total runtime ~0.7ms) Launch-critical areas confi…
+
+👔 LEAD     → user: Implemented and verified the `pricing.ts` hotfix.
+
+- **BUILD20:** 20% off subtotals of **¥3,000 or more**, case-insensitive.
+- **VIP handling:** customers receive the better single discount—20% with eligible BUILD20 or the usual 10% VIP discount—**without stacking**.
+- Below ¥3,000, BUILD20 gives no discount; VIPs retain their 10%.
+- Unknown codes are ignored.
+- Final totals are rounded **down to whole yen**.
+- Existing public function signatures remain unchanged.
+
+**Acceptance tests: 10 passed, 0 failed.** Ready for tonight’s launch.
+
+── Scoreboard: WITH NO-MICROMANAGING HARNESS ──
+  Models  lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+  Lead touched repo/tests itself  : 0x  (2 attempts braked)
+  User aligned (ask_user)         : ✓ (1x)
+  Code written by                 : Lead 0x · Engineer 1x
+  Delegations                     : @engineer 1 · @qa 1
+  Brakes fired                    : 2
+  Independent QA verified         : ✓
+  Lead tokens / team tokens       : 10935 / 7267
+  Hidden test suite (harness)     : 10/10 ✓
+  37s · stopped by model · runs\20261117-105734-harness
