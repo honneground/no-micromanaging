@@ -308,6 +308,26 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Raw output of a saved run: /raw/<run>/console.txt | report.json | pricing.ts.txt
+  const raw = req.method === "GET" ? url.pathname.match(/^\/raw\/([^/]+)\/(console\.txt|report\.json|pricing\.ts\.txt)$/) : null;
+  if (raw) {
+    const dir = path.join(REPO_ROOT, "runs", path.basename(decodeURIComponent(raw[1])));
+    const file = { "console.txt": "console.log", "report.json": "report.json", "pricing.ts.txt": "workspace/pricing.ts" }[raw[2]]!;
+    const full = path.join(dir, file);
+    if (!fs.existsSync(full)) {
+      res.writeHead(404);
+      res.end("Not found");
+      return;
+    }
+    let body = fs.readFileSync(full, "utf8");
+    if (raw[2] === "console.txt") body = body.replace(/\x1b\[[0-9;]*m/g, "");
+    res.writeHead(200, {
+      "Content-Type": raw[2] === "report.json" ? "application/json; charset=utf-8" : "text/plain; charset=utf-8",
+    });
+    res.end(body);
+    return;
+  }
+
   if (req.method === "POST" && url.pathname === "/api/start") {
     const body = await readJsonBody(req);
     const id = crypto.randomUUID().slice(0, 10);

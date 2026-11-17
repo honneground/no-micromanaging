@@ -11,6 +11,8 @@
   {
    "id": "105734",
    "label": "Kimi lead · Lead takes over after QA fails",
+   "bareDir": "20261117-105615-bare",
+   "harnessDir": "20261117-105734-harness",
    "bare": {
     "mode": "bare",
     "model": "moonshotai/kimi-k3.1-pro",
@@ -311,6 +313,8 @@
   {
    "id": "113132",
    "label": "Kimi lead · Lead coaches after QA fails",
+   "bareDir": "20261117-113033-bare",
+   "harnessDir": "20261117-113132-harness",
    "bare": {
     "mode": "bare",
     "model": "moonshotai/kimi-k3.1-pro",

@@ -80,6 +80,9 @@
       .bad-v { color: var(--red); }
       .good-v { color: var(--green); }
       .note { margin: 10px 2px 0; font-size: 13.5px; color: var(--muted); min-height: 20px; }
+      .raw { margin: 4px 2px 0; font-size: 13px; color: var(--muted); }
+      .raw a { color: var(--blue); }
+      .raw b { color: var(--ink); font-weight: 600; }
 
       /* Lanes */
       .arena { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -183,6 +186,7 @@
         </div>
       </section>
       <p class="note" id="note"></p>
+      <p class="raw" id="rawLinks"></p>
 
       <section class="arena">
         <div class="lane bare">
@@ -463,9 +467,24 @@
         if (token === staticToken) handle({ type: "all_done" });
       }
 
+      // Links to each run's unedited output (static: docs/runs/, server: /raw/).
+      function renderRawLinks(pair) {
+        const bareDir = STATIC ? pair.bareDir : pair.bare;
+        const harnessDir = STATIC ? pair.harnessDir : pair.harness;
+        if (typeof bareDir !== "string" || typeof harnessDir !== "string") { $("rawLinks").innerHTML = ""; return; }
+        const base = (dir) => (STATIC ? `runs/${encodeURIComponent(dir)}/` : `/raw/${encodeURIComponent(dir)}/`);
+        const links = (dir) =>
+          `<a href="${base(dir)}console.txt" target="_blank" rel="noopener">console</a> · ` +
+          `<a href="${base(dir)}report.json" target="_blank" rel="noopener">report</a> · ` +
+          `<a href="${base(dir)}pricing.ts.txt" target="_blank" rel="noopener">final code</a>`;
+        $("rawLinks").innerHTML =
+          `Raw output · <b>Before</b> (${esc(bareDir)}): ${links(bareDir)} &nbsp;|&nbsp; <b>After</b> (${esc(harnessDir)}): ${links(harnessDir)}`;
+      }
+
       async function replay(speed) {
         const pair = S.pairs.find((p) => p.id === $("pairSelect").value) || S.pairs[0];
         if (!pair) return;
+        renderRawLinks(pair);
         resetLanes(["bare", "harness"]);
         setRunning(true);
         if (STATIC) return staticReplay(pair, speed);

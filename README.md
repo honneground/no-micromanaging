@@ -80,7 +80,14 @@ Lead `moonshotai/kimi-k3.1-pro` · Engineer `deepseek-ai/deepseek-v4.1-flash-101
 
 In the "before" run the Lead wrote the code itself, got 9/10, delegated to QA, saw the failure and **fixed it personally**. That is the takeover pattern, and nobody prompted it to do that. The "after" run delegated, QA verified, and the Lead used half the expensive tokens.
 
-Full transcripts: [`examples/before-bare.log`](examples/before-bare.log) · [`examples/after-harness.log`](examples/after-harness.log)
+Raw output of the runs on this page (console log, full report, and the final `pricing.ts` each team produced):
+
+| Pair | Before (bare Lead) | After (decelerator on) |
+|---|---|---|
+| **105734** · Lead takes over after QA fails (the numbers above) | [console](docs/runs/20261117-105615-bare/console.txt) · [report](docs/runs/20261117-105615-bare/report.json) · [code](docs/runs/20261117-105615-bare/pricing.ts.txt) | [console](docs/runs/20261117-105734-harness/console.txt) · [report](docs/runs/20261117-105734-harness/report.json) · [code](docs/runs/20261117-105734-harness/pricing.ts.txt) |
+| **113132** · Lead coaches after QA fails | [console](docs/runs/20261117-113033-bare/console.txt) · [report](docs/runs/20261117-113033-bare/report.json) · [code](docs/runs/20261117-113033-bare/pricing.ts.txt) | [console](docs/runs/20261117-113132-harness/console.txt) · [report](docs/runs/20261117-113132-harness/report.json) · [code](docs/runs/20261117-113132-harness/pricing.ts.txt) |
+
+In pair 113132 the After run shows the coaching path: QA fails 9/10, the Lead sends the failure back to the Engineer instead of fixing it, and QA passes 10/10. Its Lead used 25.7k → 19.3k tokens (−25%).
 
 > Runs are non-deterministic. Both versions usually pass the hidden tests. The difference is *how* the work gets done, who verified it, and what it cost.
 

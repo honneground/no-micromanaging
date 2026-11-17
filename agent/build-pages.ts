@@ -4,6 +4,7 @@
 //
 // docs/index.html   = public/index.html (it falls back to recorded runs when there is no server)
 // docs/demo-data.json = the chosen before/after runs from runs/, with local paths removed
+// docs/runs/<run>/  = each run's raw output: console.txt, report.json, final pricing.ts (as .txt)
 //
 // runs/ is git-ignored, so this only works on the machine that recorded the runs.
 // To feature other runs, edit PAIRS below.
@@ -56,7 +57,42 @@ function loadReport(dir: string) {
   return scrub(JSON.parse(fs.readFileSync(file, "utf8"))) as Record<string, unknown>;
 }
 
-const pairs = PAIRS.map((p) => ({ id: p.id, label: p.label, bare: loadReport(p.bare), harness: loadReport(p.harness) }));
+// Raw output per run, served as plain text so browsers display it instead of downloading.
+function exportRaw(dir: string) {
+  const src = path.join(REPO_ROOT, "runs", dir);
+  const dst = path.join(OUT, "runs", dir);
+  fs.mkdirSync(dst, { recursive: true });
+  const report = JSON.parse(fs.readFileSync(path.join(src, "report.json"), "utf8"));
+  const m = report.models ?? {};
+  const header = [
+    `# Raw console output of run ${dir}`,
+    `# mode: ${report.mode} · lead: ${m.lead ?? report.model} · engineer: ${m.engineer ?? "-"} · qa: ${m.qa ?? "-"} · user: ${m.user ?? "-"}`,
+    `# Colors removed and local paths replaced; otherwise exactly as printed.`,
+    "",
+  ].join("\n");
+  const log = fs.readFileSync(path.join(src, "console.log"), "utf8").replace(/\x1b\[[0-9;]*m/g, "");
+  // A UTF-8 BOM makes browsers decode emoji / ¥ correctly even if the host sends no charset.
+  const BOM = "﻿";
+  fs.writeFileSync(path.join(dst, "console.txt"), BOM + header + (scrub(log) as string), "utf8");
+  fs.writeFileSync(path.join(dst, "report.json"), JSON.stringify(scrub(report), null, 2), "utf8");
+  const code = path.join(src, "workspace", "pricing.ts");
+  if (fs.existsSync(code)) fs.writeFileSync(path.join(dst, "pricing.ts.txt"), BOM + fs.readFileSync(code, "utf8"), "utf8");
+}
+
+fs.rmSync(path.join(OUT, "runs"), { recursive: true, force: true });
+for (const p of PAIRS) {
+  exportRaw(p.bare);
+  exportRaw(p.harness);
+}
+
+const pairs = PAIRS.map((p) => ({
+  id: p.id,
+  label: p.label,
+  bareDir: p.bare,
+  harnessDir: p.harness,
+  bare: loadReport(p.bare),
+  harness: loadReport(p.harness),
+}));
 const first = pairs.find((p) => p.id === DEFAULT_PAIR) ?? pairs[0];
 
 const data = {
@@ -71,8 +107,11 @@ fs.copyFileSync(path.join(REPO_ROOT, "public", "index.html"), path.join(OUT, "in
 fs.writeFileSync(path.join(OUT, "demo-data.json"), JSON.stringify(data, null, 1), "utf8");
 fs.writeFileSync(path.join(OUT, ".nojekyll"), "", "utf8");
 
-const leaks = JSON.stringify(data).match(/Users[\\/]|[A-Za-z]:\\\\/g);
-console.log(`Wrote docs/index.html and docs/demo-data.json (${pairs.length} pairs, default ${DEFAULT_PAIR}).`);
+const rawText = PAIRS.flatMap((p) => [p.bare, p.harness])
+  .flatMap((d) => fs.readdirSync(path.join(OUT, "runs", d)).map((f) => fs.readFileSync(path.join(OUT, "runs", d, f), "utf8")))
+  .join("\n");
+const leaks = (JSON.stringify(data) + rawText).match(/Users[\\/]|[A-Za-z]:\\\\|[A-Za-z]:\\Users/g);
+console.log(`Wrote docs/index.html, docs/demo-data.json and docs/runs/ (${pairs.length} pairs, default ${DEFAULT_PAIR}).`);
 if (leaks) {
   console.error(`Possible local paths left in demo-data.json: ${leaks.length}`);
   process.exit(1);
