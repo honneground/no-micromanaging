@@ -1,0 +1,51 @@
+﻿# Raw console output of run 20261117-113132-harness
+# mode: harness · lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+# Colors removed and local paths replaced; otherwise exactly as printed.
+👔 LEAD     → list_files()
+             🛑 DECELERATOR BRAKE [ANTI-DIY]: Tech Lead cannot inspect code directly via "list_files". Stay above the code: clarify intent with the user (ask_user) and delegate hands-on work to @engineer via delegate_task.
+👔 LEAD     → ask_user: "How should BUILD20 interact with the existing VIP 10% discount?"
+🧑 USER     ❓ How should BUILD20 interact with the existing VIP 10% discount?
+🧑 USER        options: [1] Apply only the better discount: 20% when BUILD20 qualifies, otherwise keep VIP 10%. | [2] Stack discounts additively: VIP customers get 30% off when BUILD20 qualifies. | [3] Stack sequentially: apply VIP 10%, then BUILD20 20% to the reduced total (28% overall). | [4] BUILD20 replaces VIP pricing: eligible VIPs get 20%; ineligible VIPs using the code get no discount.
+🧑 USER     💬 Option 1: BUILD20 and VIP do not stack; a VIP gets the larger single discount, so BUILD20 gives 20% only when the order qualifies, otherwise they keep VIP 10%.
+👔 LEAD     → delegate_task → @engineer: "Implement the urgent BUILD20 pricing hotfix in pricing.ts, preserving all existing functi…" [7 criteria]
+   🔧 ENGINEER → list_files()
+   🔧 ENGINEER → read_file(pricing.ts)
+   🔧 ENGINEER → write_file(pricing.ts) 46 lines
+   🔧 ENGINEER   report: Implemented the hotfix in `pricing.ts`: `calculateTotal` now matches the `BUILD20` promo case-insensitively (no error for unknown codes) an…
+👔 LEAD     → delegate_task → @qa: "Validate the engineer's BUILD20 changes in pricing.ts immediately. The repo reportedly ha…" [7 criteria]
+   🧪 QA       → run_tests()
+   🧪 QA         ❌ 9/10 tests passing.
+   🧪 QA         report: **BUILD20 validation: 9/10 acceptance tests passing, 1 failure.** **Passing (9):** - regular order: no promo, not VIP - VIP gets 10% off - …
+👔 LEAD     → delegate_task → @engineer: "Fix the one remaining hotfix validation failure in pricing.ts. QA found that ' build20 ' …" [3 criteria]
+   🔧 ENGINEER → list_files()
+   🔧 ENGINEER → read_file(pricing.ts)
+   🔧 ENGINEER → write_file(pricing.ts) 46 lines
+   🔧 ENGINEER   report: Fixed `isBuild20` in `pricing.ts` to normalize the promo code with `.trim().toLowerCase()` before comparing against `"build20"`, so `' buil…
+👔 LEAD     → delegate_task → @qa: "Re-run the complete hotfix acceptance checks after the promo normalization fix. Also veri…" [3 criteria]
+   🧪 QA       → run_tests()
+   🧪 QA         ✅ 10/10 tests passing.
+   🧪 QA         report: **Result: 10/10 passing, 0 failures.** Full suite output: - ✔ regular order: no promo, not VIP - ✔ VIP gets 10% off - ✔ BUILD20 gives 20% o…
+👔 LEAD     → run_tests()
+             🛑 DECELERATOR BRAKE [ANTI-DIY]: Tech Lead cannot call "run_tests". Stay above the code: clarify intent with the user (ask_user) and delegate hands-on work to @qa via delegate_task.
+
+👔 LEAD     → user: Hotfix shipped in `pricing.ts`:
+
+- **BUILD20**: 20% off pre-discount subtotals **≥ ¥3,000**, case-insensitive.
+- **VIP fairness**: no stacking—eligible VIPs get 20%; otherwise they retain VIP 10%.
+- Unknown codes are ignored.
+- Final totals are rounded **down to whole yen**.
+- Existing function signatures are unchanged.
+
+**Validation: 10/10 acceptance checks passed.**
+
+── Scoreboard: WITH NO-MICROMANAGING HARNESS ──
+  Models  lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+  Lead touched repo/tests itself  : 0x  (2 attempts braked)
+  User aligned (ask_user)         : ✓ (1x)
+  Code written by                 : Lead 0x · Engineer 2x
+  Delegations                     : @engineer 2 · @qa 2
+  Brakes fired                    : 2
+  Independent QA verified         : ✓
+  Lead tokens / team tokens       : 19294 / 15316
+  Hidden test suite (harness)     : 10/10 ✓
+  67s · stopped by model · .\runs\20261117-113132-harness

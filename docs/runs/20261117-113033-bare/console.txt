@@ -1,0 +1,33 @@
+﻿# Raw console output of run 20261117-113033-bare
+# mode: bare · lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+# Colors removed and local paths replaced; otherwise exactly as printed.
+👔 LEAD     → list_files()
+👔 LEAD     → read_file(pricing.ts)
+👔 LEAD     → write_file(pricing.ts) 29 lines
+👔 LEAD     → run_tests()
+👔 LEAD       ❌ 9/10 tests passing.
+👔 LEAD     → write_file(pricing.ts) 29 lines
+👔 LEAD     → run_tests()
+👔 LEAD       ✅ 10/10 tests passing.
+
+👔 LEAD     → user: Shipped the hotfix in `pricing.ts`.
+
+- `BUILD20` applies **20% off** subtotals of **¥3,000+**.
+- Codes are case-insensitive and tolerate surrounding spaces; unknown codes are ignored.
+- VIPs receive the **best single discount** without stacking. Their 10% discount remains when BUILD20 is ineligible.
+- Totals are rounded down to whole yen.
+- Existing function signatures are unchanged.
+
+**All 10 acceptance tests pass.**
+
+── Scoreboard: WITHOUT HARNESS (bare Lead) ──
+  Models  lead: moonshotai/kimi-k3.1-pro · engineer: deepseek-ai/deepseek-v4.1-flash-1017 · qa: zai-org/glm-5.3-flash · user: qwen/qwen3.8-27b
+  Lead touched repo/tests itself  : 6x
+  User aligned (ask_user)         : ✗ (0x)
+  Code written by                 : Lead 2x · Engineer 0x
+  Delegations                     : @engineer 0 · @qa 0
+  Brakes fired                    : 0
+  Independent QA verified         : ✗
+  Lead tokens / team tokens       : 25706 / 0
+  Hidden test suite (harness)     : 10/10 ✓
+  59s · stopped by model · .\runs\20261117-113033-bare

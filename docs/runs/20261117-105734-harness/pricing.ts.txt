@@ -1,0 +1,46 @@
+﻿// Checkout pricing for the shop.
+// Amounts are in Japanese yen.
+
+export type LineItem = {
+  name?: string;
+  price: number; // unit price in yen
+  qty: number;
+};
+
+export type CheckoutOptions = {
+  promoCode?: string;
+  isVip?: boolean;
+};
+
+// Promo code definitions.
+const BUILD20_CODE = "BUILD20";
+const BUILD20_RATE = 0.2;
+const BUILD20_MIN_SUBTOTAL = 3000;
+
+// Existing VIP discount.
+const VIP_RATE = 0.1;
+
+export function subtotal(items: LineItem[]): number {
+  return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+// Returns the discount rate for a promo code, or 0 when the code is unknown
+// or not applicable to the given (pre-discount) subtotal.
+function promoDiscountRate(promoCode: string | undefined, sub: number): number {
+  if (typeof promoCode !== "string") return 0;
+  if (promoCode.trim().toUpperCase() !== BUILD20_CODE) return 0;
+  if (sub < BUILD20_MIN_SUBTOTAL) return 0;
+  return BUILD20_RATE;
+}
+
+export function calculateTotal(items: LineItem[], options: CheckoutOptions = {}): number {
+  const sub = subtotal(items);
+
+  const vipRate = options.isVip ? VIP_RATE : 0;
+  const promoRate = promoDiscountRate(options.promoCode, sub);
+
+  // Discounts do not stack: apply the better single rate.
+  const discountRate = Math.max(vipRate, promoRate);
+
+  return Math.floor(sub * (1 - discountRate));
+}

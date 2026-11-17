@@ -1,0 +1,46 @@
+﻿// Checkout pricing for the shop.
+// Amounts are in Japanese yen.
+
+export type LineItem = {
+  name?: string;
+  price: number; // unit price in yen
+  qty: number;
+};
+
+export type CheckoutOptions = {
+  promoCode?: string;
+  isVip?: boolean;
+};
+
+const VIP_DISCOUNT_PERCENT = 10;
+const BUILD20_DISCOUNT_PERCENT = 20;
+// Pre-discount order total (in yen) required for the BUILD20 promo.
+const BUILD20_MIN_ORDER_TOTAL = 3000;
+
+export function subtotal(items: LineItem[]): number {
+  return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+// Promo codes are matched case-insensitively, ignoring surrounding whitespace.
+// Unknown codes are ignored (no error, no promo discount).
+function isBuild20(promoCode: string | undefined): boolean {
+  return promoCode !== undefined && promoCode.trim().toLowerCase() === "build20";
+}
+
+export function calculateTotal(items: LineItem[], options: CheckoutOptions = {}): number {
+  const sub = subtotal(items);
+  const vip = Boolean(options.isVip);
+  const build20Qualifies = isBuild20(options.promoCode) && sub >= BUILD20_MIN_ORDER_TOTAL;
+
+  // BUILD20 and VIP never stack: apply the larger single discount.
+  // VIPs keep their 10% when BUILD20 does not qualify.
+  let discountPercent = 0;
+  if (build20Qualifies) {
+    discountPercent = BUILD20_DISCOUNT_PERCENT;
+  } else if (vip) {
+    discountPercent = VIP_DISCOUNT_PERCENT;
+  }
+
+  // Integer math keeps the floored total free of floating point drift.
+  return Math.floor((sub * (100 - discountPercent)) / 100);
+}
