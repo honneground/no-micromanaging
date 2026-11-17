@@ -11,6 +11,7 @@
     "team:runs": "tsx agent/8-team.ts --runs",
     "demo": "tsx agent/server.ts",
     "models": "tsx agent/list-models.ts",
+    "build:pages": "tsx agent/build-pages.ts",
     "test": "node --import tsx --test agent/guardrails.test.ts",
     "typecheck": "tsc --noEmit"
   },

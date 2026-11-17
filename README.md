@@ -2,6 +2,8 @@
 
 **An "AI Decelerator" harness that stops the lead agent from doing the team's work itself.**
 
+**▶ Demo (recorded runs, replayed in your browser): https://honneground.github.io/no-micromanaging/**
+
 Built in one evening at the [+81 Builders](https://x.com/Plus81builders) **Agent Harness Build Night** (Tokyo, 17 Nov 2026), on top of [basically-ai-harness](https://github.com/TejasQ/basically-ai-harness).
 
 ---
@@ -108,7 +110,8 @@ npm run team                # before, then after, then a comparison table
 | `npm run team -- --scripted-user` | Use a fixed reply instead of the Product Owner model |
 | `npm run team:runs` | List saved runs |
 | `npm run team:replay -- latest` | Replay the latest before/after pair (offline demo backup) |
-| `npm run demo` | Web UI at http://localhost:3810 |
+| `npm run demo` | Web UI at http://localhost:3810 (live runs + saved runs) |
+| `npm run build:pages` | Export the featured runs to `docs/` for the static GitHub Pages demo |
 | `npm test` | Unit tests for the guardrails (no API calls) |
 
 Each role's model is set by `LEAD_MODEL`, `ENGINEER_MODEL`, `QA_MODEL` and `USER_MODEL` (see `.env.example`). Any OpenAI-compatible endpoint works if you set `AIAND_BASE_URL`.

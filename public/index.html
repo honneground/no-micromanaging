@@ -55,6 +55,11 @@
       }
       .live-menu label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
       .live-menu select { width: 100%; }
+      /* Static hosting (GitHub Pages): no server, so no live runs. */
+      body.static details.live { display: none; }
+      .static-note { display: none; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+      body.static .static-note { display: block; }
+      .static-note a { color: var(--blue); }
 
       .meta { margin-top: 14px; display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13.5px; }
       .meta b { color: var(--ink); font-weight: 600; }
@@ -135,6 +140,7 @@
         <div>
           <h1>🛑 No Micromanaging</h1>
           <p class="thesis">Same model, same prompt, same tools. Only the harness changes.</p>
+          <p class="static-note">Recorded runs, replayed in your browser. Run it live: <a href="https://github.com/honneground/no-micromanaging">github.com/honneground/no-micromanaging</a></p>
         </div>
         <div class="controls">
           <select id="pairSelect" title="Saved before + after run"></select>
@@ -410,28 +416,51 @@
       $("dlgSend").addEventListener("click", () => reply($("dlgInput").value.trim()));
       $("dlgInput").addEventListener("keydown", (e) => { if (e.key === "Enter") reply(e.target.value.trim()); });
 
-      // ── Streaming ──
+      // ── Events (from the server's stream, or from the static replayer) ──
+      function handle(data) {
+        if (data.type === "phase_start") setChip(data.mode, "run", "Running…");
+        else if (data.type === "timeline") addRow(data.mode, data.event);
+        else if (data.type === "user_question") askUser(data.questionId, data.question);
+        else if (data.type === "user_answered") $("dialog").classList.remove("open");
+        else if (data.type === "phase_done") finishLane(data.mode, data.report);
+        else if (data.type === "all_done" || data.type === "stopped") {
+          setRunning(false);
+          if (S.es) S.es.close();
+          if (data.type === "stopped") {
+            for (const m of ["bare", "harness"]) if (!S.reports[m]) setChip(m, "", "Stopped");
+          }
+          if (!STATIC) loadPairs();
+        }
+      }
+
       function listen(sessionId) {
         if (S.es) S.es.close();
         S.session = sessionId;
         S.es = new EventSource(`/api/events?sessionId=${encodeURIComponent(sessionId)}`);
-        S.es.onmessage = (msg) => {
-          const data = JSON.parse(msg.data);
-          if (data.type === "phase_start") setChip(data.mode, "run", "Running…");
-          else if (data.type === "timeline") addRow(data.mode, data.event);
-          else if (data.type === "user_question") askUser(data.questionId, data.question);
-          else if (data.type === "user_answered") $("dialog").classList.remove("open");
-          else if (data.type === "phase_done") finishLane(data.mode, data.report);
-          else if (data.type === "all_done" || data.type === "stopped") {
-            setRunning(false);
-            S.es.close();
-            if (data.type === "stopped") {
-              for (const m of ["bare", "harness"]) if (!S.reports[m] && $(m === "bare" ? "chipBare" : "chipHarness").textContent !== "Idle") setChip(m, "", "Stopped");
-            }
-            loadPairs();
-          }
-        };
+        S.es.onmessage = (msg) => handle(JSON.parse(msg.data));
         S.es.onerror = () => { setRunning(false); S.es.close(); };
+      }
+
+      // ── Static mode: replay recorded reports in the browser (same pacing as the server) ──
+      let STATIC = null; // { task, models, defaultPair, pairs: [{ id, label, bare: report, harness: report }] }
+      let staticToken = 0;
+      async function staticReplay(pair, speed) {
+        const token = ++staticToken;
+        const wait = (ms) => (speed === "instant" ? null : new Promise((r) => setTimeout(r, ms)));
+        for (const mode of ["bare", "harness"]) {
+          const rep = pair[mode];
+          if (token !== staticToken) return;
+          handle({ type: "phase_start", mode });
+          for (const ev of rep.timeline || []) {
+            if (token !== staticToken) return;
+            handle({ type: "timeline", mode, event: ev });
+            await wait(ev.kind === "brake" ? 650 : ev.kind === "user_question" ? 450 : 200);
+          }
+          if (token !== staticToken) return;
+          handle({ type: "phase_done", mode, report: rep });
+          await wait(350);
+        }
+        if (token === staticToken) handle({ type: "all_done" });
       }
 
       async function replay(speed) {
@@ -439,6 +468,7 @@
         if (!pair) return;
         resetLanes(["bare", "harness"]);
         setRunning(true);
+        if (STATIC) return staticReplay(pair, speed);
         const res = await fetch("/api/replay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -464,12 +494,17 @@
 
       // ── Setup ──
       async function loadPairs() {
-        const data = await (await fetch("/api/backups")).json();
-        S.pairs = data.pairs && data.pairs.length
-          ? data.pairs
-          : data.bare && data.harness ? [{ id: "latest", label: "Latest saved run", bare: data.bare, harness: data.harness }] : [];
+        if (STATIC) {
+          S.pairs = STATIC.pairs;
+        } else {
+          const data = await (await fetch("/api/backups")).json();
+          S.pairs = data.pairs && data.pairs.length
+            ? data.pairs
+            : data.bare && data.harness ? [{ id: "latest", label: "Latest saved run", bare: data.bare, harness: data.harness }] : [];
+        }
         const sel = $("pairSelect");
-        const want = sel.value || getPref();
+        const pref = getPref();
+        const want = sel.value || (S.pairs.some((p) => p.id === pref) ? pref : STATIC && STATIC.defaultPair);
         sel.innerHTML = "";
         for (const p of S.pairs) {
           const o = document.createElement("option");
@@ -488,7 +523,18 @@
       }
 
       async function init() {
-        const cfg = await (await fetch("/api/config")).json();
+        // With the demo server: live runs + saved runs. Without it (GitHub Pages): recorded runs only.
+        let cfg;
+        try {
+          if (location.hostname.endsWith("github.io")) throw new Error("static host");
+          const res = await fetch("/api/config");
+          if (!res.ok) throw new Error("no api");
+          cfg = await res.json();
+        } catch {
+          STATIC = await (await fetch("demo-data.json")).json();
+          document.body.classList.add("static");
+          cfg = { defaultTask: STATIC.task, defaultModels: STATIC.models, defaultLeadModel: STATIC.models.lead, models: [] };
+        }
         $("taskText").textContent = cfg.defaultTask;
         S.models = cfg.defaultModels || { lead: cfg.defaultLeadModel, engineer: "—", qa: "—", user: "—" };
         renderRoster(S.models);
@@ -511,6 +557,7 @@
       $("interactiveToggle").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
       $("modelSelect").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
       $("btnStop").addEventListener("click", async () => {
+        if (STATIC) { staticToken++; handle({ type: "stopped" }); return; }
         if (!S.session) return;
         await fetch("/api/stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: S.session }) });
         $("dialog").classList.remove("open");

@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No Micromanaging</title>
+    <style>
+      :root {
+        --bg: #f5f6f8;
+        --panel: #ffffff;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --red: #dc2626;
+        --red-bg: #fef2f2;
+        --orange: #c2410c;
+        --orange-bg: #fff7ed;
+        --green: #047857;
+        --green-bg: #ecfdf5;
+        --blue: #1d4ed8;
+        --blue-bg: #eff6ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 24px 28px; }
+
+      /* Header */
+      header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+      .thesis { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+      .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      select, button, input[type="text"] {
+        font: inherit; font-size: 14px; color: var(--ink);
+        background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
+      }
+      button { cursor: pointer; font-weight: 600; }
+      button:disabled { opacity: 0.45; cursor: not-allowed; }
+      .primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .stop { color: var(--red); border-color: #fecaca; }
+      details.live { position: relative; }
+      details.live > summary {
+        list-style: none; cursor: pointer; font-weight: 600; font-size: 14px;
+        padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+      }
+      details.live > summary::-webkit-details-marker { display: none; }
+      .live-menu {
+        position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; width: 300px;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12); display: grid; gap: 8px;
+      }
+      .live-menu label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+      .live-menu select { width: 100%; }
+      /* Static hosting (GitHub Pages): no server, so no live runs. */
+      body.static details.live { display: none; }
+      .static-note { display: none; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+      body.static .static-note { display: block; }
+      .static-note a { color: var(--blue); }
+
+      .meta { margin-top: 14px; display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13.5px; }
+      .meta b { color: var(--ink); font-weight: 600; }
+      details.task { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+      details.task summary { cursor: pointer; }
+      details.task p { margin: 6px 0 0; color: var(--ink); max-width: 900px; }
+
+      /* KPIs */
+      .kpis { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+      .kpi h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+      .kpi .vals { margin-top: 6px; display: flex; align-items: baseline; gap: 12px; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+      .kpi .arrow { color: var(--muted); font-size: 22px; font-weight: 400; }
+      .kpi .delta { margin-left: auto; font-size: 14px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+      .delta.good { color: var(--green); background: var(--green-bg); }
+      .delta.bad { color: var(--red); background: var(--red-bg); }
+      .kpi .labels { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+      .bad-v { color: var(--red); }
+      .good-v { color: var(--green); }
+      .note { margin: 10px 2px 0; font-size: 13.5px; color: var(--muted); min-height: 20px; }
+
+      /* Lanes */
+      .arena { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .lane { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 460px; }
+      .lane-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+      .lane-head h2 { margin: 0; font-size: 16px; }
+      .lane-head .sub { font-size: 12.5px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+      .lane.bare .lane-head { border-top: 4px solid var(--red); border-radius: 12px 12px 0 0; }
+      .lane.harness .lane-head { border-top: 4px solid var(--green); border-radius: 12px 12px 0 0; }
+      .chip { font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); white-space: nowrap; }
+      .chip.run { color: var(--blue); background: var(--blue-bg); }
+      .chip.good { color: var(--green); background: var(--green-bg); }
+      .chip.bad { color: var(--red); background: var(--red-bg); }
+      /* Keep both lanes on one projector screen; the feed scrolls inside. */
+      .feed { flex: 1; overflow-y: auto; padding: 8px 10px; max-height: max(260px, calc(100vh - 400px)); }
+      .lane { min-height: 0; }
+      .empty { color: var(--muted); text-align: center; margin: 60px 20px; }
+
+      .row { display: grid; grid-template-columns: 112px 1fr auto; gap: 10px; align-items: start; padding: 7px 8px; border-radius: 8px; animation: in 0.2s ease-out; }
+      .row + .row { margin-top: 2px; }
+      .who { font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+      .what { font-size: 14.5px; word-break: break-word; }
+      .t { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+      .tag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; padding: 1px 7px; border-radius: 999px; vertical-align: 1px; }
+      .tone-red { background: var(--red-bg); }
+      .tone-red .tag { color: #fff; background: var(--red); }
+      .tone-orange { background: var(--orange-bg); }
+      .tone-orange .tag { color: var(--orange); background: #ffedd5; }
+      .tone-green { background: var(--green-bg); }
+      .tone-blue { background: var(--blue-bg); }
+      .tone-truth { border: 1px dashed var(--line); margin-top: 6px !important; }
+      .tone-truth.pass { border-color: #a7f3d0; background: var(--green-bg); }
+      .tone-truth.fail { border-color: #fecaca; background: var(--red-bg); }
+
+      /* User question dialog (interactive mode) */
+      .dialog-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); display: none; align-items: center; justify-content: center; z-index: 10; padding: 16px; }
+      .dialog-bg.open { display: flex; }
+      .dialog { width: min(560px, 100%); background: var(--panel); border-radius: 14px; padding: 20px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); }
+      .dialog h4 { margin: 0 0 4px; font-size: 13px; color: var(--blue); text-transform: uppercase; letter-spacing: 0.05em; }
+      .dialog .q { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+      .dialog .opts { display: grid; gap: 8px; margin-bottom: 12px; }
+      .dialog .opts button { text-align: left; font-weight: 500; }
+      .dialog .opts button:hover { border-color: var(--blue); background: var(--blue-bg); }
+      .dialog .custom { display: flex; gap: 8px; }
+      .dialog .custom input { flex: 1; }
+
+      @keyframes in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+      @media (max-width: 900px) {
+        .kpis, .arena { grid-template-columns: 1fr; }
+        .wrap { padding: 16px; }
+        .row { grid-template-columns: 96px 1fr auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>🛑 No Micromanaging</h1>
+          <p class="thesis">Same model, same prompt, same tools. Only the harness changes.</p>
+          <p class="static-note">Recorded runs, replayed in your browser. Run it live: <a href="https://github.com/honneground/no-micromanaging">github.com/honneground/no-micromanaging</a></p>
+        </div>
+        <div class="controls">
+          <select id="pairSelect" title="Saved before + after run"></select>
+          <button id="btnReplay" class="primary" disabled>▶ Replay</button>
+          <details class="live" id="liveMenu">
+            <summary>Live run ▾</summary>
+            <div class="live-menu">
+              <label>Lead model</label>
+              <select id="modelSelect"></select>
+              <label><input type="checkbox" id="interactiveToggle" /> I answer the Lead's questions</label>
+              <button id="btnRunBoth" class="primary">Run before + after</button>
+              <button id="btnRunHarness">Run after only</button>
+            </div>
+          </details>
+          <button id="btnStop" class="stop" hidden>Stop</button>
+        </div>
+      </header>
+
+      <div class="meta" id="roster"></div>
+      <details class="task">
+        <summary>The task (identical on both sides)</summary>
+        <p id="taskText">Loading…</p>
+      </details>
+
+      <section class="kpis">
+        <div class="kpi">
+          <h3>Lead did the team's work itself</h3>
+          <div class="vals"><span id="kExecB">—</span><span class="arrow">→</span><span id="kExecA">—</span></div>
+          <div class="labels"><span>before → after</span></div>
+        </div>
+        <div class="kpi">
+          <h3>Expensive model (Lead) tokens</h3>
+          <div class="vals"><span id="kTokB">—</span><span class="arrow">→</span><span id="kTokA">—</span><span id="kTokD" class="delta" hidden></span></div>
+          <div class="labels"><span>before → after</span></div>
+        </div>
+        <div class="kpi">
+          <h3>Final code checked by independent QA</h3>
+          <div class="vals"><span id="kQaB">—</span><span class="arrow">→</span><span id="kQaA">—</span></div>
+          <div class="labels"><span>before → after</span></div>
+        </div>
+      </section>
+      <p class="note" id="note"></p>
+
+      <section class="arena">
+        <div class="lane bare">
+          <div class="lane-head">
+            <h2>Before <span class="sub">no harness</span></h2>
+            <span class="chip" id="chipBare">Idle</span>
+          </div>
+          <div class="feed" id="feedBare"><p class="empty">Pick a saved run and press ▶ Replay.</p></div>
+        </div>
+        <div class="lane harness">
+          <div class="lane-head">
+            <h2>After <span class="sub">AI Decelerator on</span></h2>
+            <span class="chip" id="chipHarness">Idle</span>
+          </div>
+          <div class="feed" id="feedHarness"><p class="empty">The Lead is braked whenever it tries to do the team's work.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="dialog-bg" id="dialog">
+      <div class="dialog">
+        <h4>The Lead is asking you</h4>
+        <div class="q" id="dlgQ"></div>
+        <div class="opts" id="dlgOpts"></div>
+        <div class="custom">
+          <input type="text" id="dlgInput" placeholder="Or type your own answer…" />
+          <button id="dlgSend" class="primary">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const S = {
+        session: null,
+        es: null,
+        pairs: [],
+        reports: { bare: null, harness: null },
+        qaFailed: { bare: false, harness: false },
+        models: null,
+        pendingQ: null,
+      };
+      const PAIR_KEY = "nm-selected-pair";
+      const getPref = () => { try { return localStorage.getItem(PAIR_KEY); } catch { return null; } };
+      const setPref = (v) => { try { localStorage.setItem(PAIR_KEY, v); } catch {} };
+
+      const esc = (s) => String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      const short = (m) => String(m || "—").split("/").pop();
+      const clip = (s, n) => { const t = String(s ?? "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+      const kfmt = (n) => (n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n));
+      const score = (s) => (String(s).match(/(\d+)\/(\d+)/) || []).slice(1).map(Number);
+
+      const WHO = {
+        lead: "👔 Lead",
+        engineer: "🔧 Engineer",
+        qa: "🧪 QA",
+        user: "🧑 User",
+        harness: "🛑 Harness",
+      };
+      const DIY_TEXT = {
+        list_files: "Browses the repo itself",
+        read_file: "Reads the code itself",
+        write_file: "Writes the code itself",
+        run_tests: "Runs the tests itself",
+      };
+
+      // ── Turn a timeline event into one readable line (or skip the noise) ──
+      function describe(mode, ev) {
+        const title = String(ev.title || "");
+        if (ev.kind === "brake") {
+          const what = title === "Blocked premature completion" ? "reporting done before QA passed" : title.replace(/^Blocked /, "");
+          return { who: "harness", text: `Blocked: ${what}`, tone: "red", tag: ev.brakeKind || "BRAKE" };
+        }
+        if (ev.kind === "user_question") return { who: "lead", text: `Asks the user: “${clip(title, 120)}”`, tone: "blue" };
+        if (ev.kind === "user_answer") return { who: "user", text: `“${clip(title, 110)}”`, tone: "blue" };
+        if (ev.kind === "answer") return ev.role === "lead" ? { who: "lead", text: "Tells the user it's done" } : null;
+        if (ev.kind === "error") return { who: ev.role, text: clip(title, 140), tone: "red" };
+        if (ev.kind === "test_result") {
+          const [p, t] = score(title);
+          const ok = !!ev.passed;
+          if (ev.role === "harness") return { who: "truth", text: `Hidden test suite: ${p}/${t}`, tone: "truth " + (ok ? "pass" : "fail") };
+          if (ev.role === "qa") {
+            S.qaFailed[mode] = !ok;
+            return { who: "qa", text: `${p}/${t} tests pass ${ok ? "✅" : "❌"}`, tone: ok ? "green" : "red" };
+          }
+          return { who: ev.role, text: `Own test run: ${p}/${t} ${ok ? "✅" : "❌"}` };
+        }
+        if (ev.kind === "tool_call") {
+          if (ev.role === "lead") {
+            if (title.startsWith("delegate_task → @engineer")) return { who: "lead", text: "Hands the task to 🔧 Engineer" };
+            if (title.startsWith("delegate_task → @qa")) return { who: "lead", text: "Asks 🧪 QA to verify" };
+            const name = Object.keys(DIY_TEXT).find((n) => title.startsWith(n));
+            if (name) {
+              const takeover = name === "write_file" && S.qaFailed[mode];
+              return takeover
+                ? { who: "lead", text: "Fixes QA's failure itself", tone: "red", tag: "TAKEOVER" }
+                : { who: "lead", text: DIY_TEXT[name], tone: "orange", tag: "DIY" };
+            }
+            return null;
+          }
+          if (ev.role === "engineer" && title.startsWith("write_file")) return { who: "engineer", text: "Writes the code" };
+          return null; // engineer reads, QA's run_tests call (its result has a row)
+        }
+        return null; // sub-agent reports and other info
+      }
+
+      function addRow(mode, ev) {
+        const d = describe(mode, ev);
+        if (!d) return;
+        const feed = $(mode === "bare" ? "feedBare" : "feedHarness");
+        const empty = feed.querySelector(".empty");
+        if (empty) empty.remove();
+        const row = document.createElement("div");
+        row.className = "row" + (d.tone ? " " + d.tone.split(" ").map((t) => (t === "pass" || t === "fail" ? t : "tone-" + t)).join(" ") : "");
+        if (ev.detail) row.title = String(ev.detail).slice(0, 1200);
+        const who = d.who === "truth" ? "🧾 Ground truth" : WHO[d.who] || d.who;
+        row.innerHTML =
+          `<span class="who">${esc(who)}</span>` +
+          `<span class="what">${esc(d.text)}${d.tag ? `<span class="tag">${esc(d.tag)}</span>` : ""}</span>` +
+          `<span class="t">${(ev.ts / 1000).toFixed(0)}s</span>`;
+        feed.appendChild(row);
+        feed.scrollTop = feed.scrollHeight;
+      }
+
+      // ── Header numbers ──
+      function direct(r) { return (r.leadExecAttempts || 0) - (r.leadExecBlocked || 0); }
+      function renderKpis() {
+        const b = S.reports.bare, a = S.reports.harness;
+        const setV = (id, text, good) => { const el = $(id); el.textContent = text; el.className = good === undefined ? "" : good ? "good-v" : "bad-v"; };
+        if (b) {
+          setV("kExecB", direct(b) + "×", direct(b) === 0);
+          setV("kTokB", kfmt(b.leadTokens || 0));
+          setV("kQaB", b.qaVerified ? "✓" : "✗", !!b.qaVerified);
+        }
+        if (a) {
+          setV("kExecA", direct(a) + "×", direct(a) === 0);
+          setV("kTokA", kfmt(a.leadTokens || 0));
+          setV("kQaA", a.qaVerified ? "✓" : "✗", !!a.qaVerified);
+        }
+        const d = $("kTokD");
+        if (a && b && b.leadTokens > 0) {
+          const pct = Math.round(((a.leadTokens - b.leadTokens) / b.leadTokens) * 100);
+          d.hidden = false;
+          d.textContent = (pct > 0 ? "+" : "") + pct + "%";
+          d.className = "delta " + (pct <= 0 ? "good" : "bad");
+        } else {
+          d.hidden = true;
+        }
+        if (a && b && a.finalTests && b.finalTests) {
+          const both = a.finalTests.passed && b.finalTests.passed;
+          $("note").textContent = both
+            ? `Both versions pass the hidden test suite (${a.finalTests.pass}/${a.finalTests.total}). The difference is who did the work, who checked it, and what it cost.`
+            : `Hidden test suite: before ${b.finalTests.pass}/${b.finalTests.total}, after ${a.finalTests.pass}/${a.finalTests.total}.`;
+        } else {
+          $("note").textContent = "";
+        }
+      }
+
+      function setChip(mode, cls, text) {
+        const el = $(mode === "bare" ? "chipBare" : "chipHarness");
+        el.className = "chip" + (cls ? " " + cls : "");
+        el.textContent = text;
+      }
+
+      function finishLane(mode, rep) {
+        S.reports[mode] = rep;
+        if (rep.models) renderRoster(rep.models);
+        const clean = direct(rep) === 0 && rep.qaVerified;
+        setChip(mode, clean ? "good" : "bad", `${clean ? "Delegated cleanly" : "Micromanaged"} · ${rep.seconds}s`);
+        renderKpis();
+      }
+
+      function renderRoster(m, youAnswer) {
+        if (!m) return;
+        $("roster").innerHTML =
+          `<span>👔 Lead <b>${esc(short(m.lead))}</b></span>` +
+          `<span>🔧 Engineer <b>${esc(short(m.engineer))}</b></span>` +
+          `<span>🧪 QA <b>${esc(short(m.qa))}</b></span>` +
+          `<span>🧑 User <b>${esc(youAnswer ? "you" : short(m.user))}</b></span>`;
+      }
+
+      function resetLanes(modes) {
+        for (const mode of modes) {
+          S.reports[mode] = null;
+          S.qaFailed[mode] = false;
+          $(mode === "bare" ? "feedBare" : "feedHarness").innerHTML = "";
+          setChip(mode, "", "Waiting");
+        }
+        for (const id of ["kExecB", "kExecA", "kTokB", "kTokA", "kQaB", "kQaA"]) {
+          const side = id.endsWith("B") ? "bare" : "harness";
+          if (modes.includes(side)) { $(id).textContent = "—"; $(id).className = ""; }
+        }
+        renderKpis();
+      }
+
+      function setRunning(on) {
+        $("btnReplay").disabled = on || S.pairs.length === 0;
+        $("btnRunBoth").disabled = on;
+        $("btnRunHarness").disabled = on;
+        $("btnStop").hidden = !on;
+      }
+
+      // ── Interactive user (live mode only) ──
+      function askUser(questionId, q) {
+        S.pendingQ = questionId;
+        $("dlgQ").textContent = q.question;
+        const opts = $("dlgOpts");
+        opts.innerHTML = "";
+        (q.options || []).forEach((o, i) => {
+          const b = document.createElement("button");
+          b.textContent = `${i + 1}. ${o}`;
+          b.addEventListener("click", () => reply(o)); // text passed directly, no attribute round-trip
+          opts.appendChild(b);
+        });
+        $("dlgInput").value = "";
+        $("dialog").classList.add("open");
+      }
+      async function reply(answer) {
+        const qid = S.pendingQ;
+        if (!qid || !answer) return;
+        S.pendingQ = null;
+        $("dialog").classList.remove("open");
+        await fetch("/api/reply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: S.session, questionId: qid, answer }),
+        });
+      }
+      $("dlgSend").addEventListener("click", () => reply($("dlgInput").value.trim()));
+      $("dlgInput").addEventListener("keydown", (e) => { if (e.key === "Enter") reply(e.target.value.trim()); });
+
+      // ── Events (from the server's stream, or from the static replayer) ──
+      function handle(data) {
+        if (data.type === "phase_start") setChip(data.mode, "run", "Running…");
+        else if (data.type === "timeline") addRow(data.mode, data.event);
+        else if (data.type === "user_question") askUser(data.questionId, data.question);
+        else if (data.type === "user_answered") $("dialog").classList.remove("open");
+        else if (data.type === "phase_done") finishLane(data.mode, data.report);
+        else if (data.type === "all_done" || data.type === "stopped") {
+          setRunning(false);
+          if (S.es) S.es.close();
+          if (data.type === "stopped") {
+            for (const m of ["bare", "harness"]) if (!S.reports[m]) setChip(m, "", "Stopped");
+          }
+          if (!STATIC) loadPairs();
+        }
+      }
+
+      function listen(sessionId) {
+        if (S.es) S.es.close();
+        S.session = sessionId;
+        S.es = new EventSource(`/api/events?sessionId=${encodeURIComponent(sessionId)}`);
+        S.es.onmessage = (msg) => handle(JSON.parse(msg.data));
+        S.es.onerror = () => { setRunning(false); S.es.close(); };
+      }
+
+      // ── Static mode: replay recorded reports in the browser (same pacing as the server) ──
+      let STATIC = null; // { task, models, defaultPair, pairs: [{ id, label, bare: report, harness: report }] }
+      let staticToken = 0;
+      async function staticReplay(pair, speed) {
+        const token = ++staticToken;
+        const wait = (ms) => (speed === "instant" ? null : new Promise((r) => setTimeout(r, ms)));
+        for (const mode of ["bare", "harness"]) {
+          const rep = pair[mode];
+          if (token !== staticToken) return;
+          handle({ type: "phase_start", mode });
+          for (const ev of rep.timeline || []) {
+            if (token !== staticToken) return;
+            handle({ type: "timeline", mode, event: ev });
+            await wait(ev.kind === "brake" ? 650 : ev.kind === "user_question" ? 450 : 200);
+          }
+          if (token !== staticToken) return;
+          handle({ type: "phase_done", mode, report: rep });
+          await wait(350);
+        }
+        if (token === staticToken) handle({ type: "all_done" });
+      }
+
+      async function replay(speed) {
+        const pair = S.pairs.find((p) => p.id === $("pairSelect").value) || S.pairs[0];
+        if (!pair) return;
+        resetLanes(["bare", "harness"]);
+        setRunning(true);
+        if (STATIC) return staticReplay(pair, speed);
+        const res = await fetch("/api/replay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bare: pair.bare, harness: pair.harness, speed }),
+        });
+        listen((await res.json()).sessionId);
+      }
+
+      async function runLive(mode) {
+        $("liveMenu").open = false;
+        const modes = mode === "both" ? ["bare", "harness"] : ["harness"];
+        resetLanes(modes);
+        const interactive = $("interactiveToggle").checked;
+        if (S.models) renderRoster({ ...S.models, lead: $("modelSelect").value }, interactive);
+        setRunning(true);
+        const res = await fetch("/api/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode, model: $("modelSelect").value, interactive }),
+        });
+        listen((await res.json()).sessionId);
+      }
+
+      // ── Setup ──
+      async function loadPairs() {
+        if (STATIC) {
+          S.pairs = STATIC.pairs;
+        } else {
+          const data = await (await fetch("/api/backups")).json();
+          S.pairs = data.pairs && data.pairs.length
+            ? data.pairs
+            : data.bare && data.harness ? [{ id: "latest", label: "Latest saved run", bare: data.bare, harness: data.harness }] : [];
+        }
+        const sel = $("pairSelect");
+        const pref = getPref();
+        const want = sel.value || (S.pairs.some((p) => p.id === pref) ? pref : STATIC && STATIC.defaultPair);
+        sel.innerHTML = "";
+        for (const p of S.pairs) {
+          const o = document.createElement("option");
+          o.value = p.id;
+          o.textContent = String(p.label).split(" (")[0]; // "105734 · kimi-k3.1-pro + team"
+          o.title = p.label;
+          if (p.id === want) o.selected = true;
+          sel.appendChild(o);
+        }
+        if (S.pairs.length === 0) {
+          const o = document.createElement("option");
+          o.textContent = "No saved runs yet";
+          sel.appendChild(o);
+        }
+        $("btnReplay").disabled = S.pairs.length === 0;
+      }
+
+      async function init() {
+        // With the demo server: live runs + saved runs. Without it (GitHub Pages): recorded runs only.
+        let cfg;
+        try {
+          if (location.hostname.endsWith("github.io")) throw new Error("static host");
+          const res = await fetch("/api/config");
+          if (!res.ok) throw new Error("no api");
+          cfg = await res.json();
+        } catch {
+          STATIC = await (await fetch("demo-data.json")).json();
+          document.body.classList.add("static");
+          cfg = { defaultTask: STATIC.task, defaultModels: STATIC.models, defaultLeadModel: STATIC.models.lead, models: [] };
+        }
+        $("taskText").textContent = cfg.defaultTask;
+        S.models = cfg.defaultModels || { lead: cfg.defaultLeadModel, engineer: "—", qa: "—", user: "—" };
+        renderRoster(S.models);
+        const ms = $("modelSelect");
+        for (const m of cfg.models || []) {
+          const o = document.createElement("option");
+          o.value = m;
+          o.textContent = m;
+          if (m === cfg.defaultLeadModel) o.selected = true;
+          ms.appendChild(o);
+        }
+        await loadPairs();
+        if (S.pairs.length) replay("instant"); // show the chosen comparison immediately
+      }
+
+      $("pairSelect").addEventListener("change", () => { setPref($("pairSelect").value); replay("instant"); });
+      $("btnReplay").addEventListener("click", () => replay("normal"));
+      $("btnRunBoth").addEventListener("click", () => runLive("both"));
+      $("btnRunHarness").addEventListener("click", () => runLive("harness"));
+      $("interactiveToggle").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
+      $("modelSelect").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
+      $("btnStop").addEventListener("click", async () => {
+        if (STATIC) { staticToken++; handle({ type: "stopped" }); return; }
+        if (!S.session) return;
+        await fetch("/api/stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: S.session }) });
+        $("dialog").classList.remove("open");
+        setRunning(false);
+      });
+      init();
+    </script>
+  </body>
+</html>
