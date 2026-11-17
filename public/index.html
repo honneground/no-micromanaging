@@ -6,20 +6,24 @@
     <title>No Micromanaging — AI Decelerator Harness</title>
     <style>
       :root {
-        --bg: #080c17;
-        --panel: #0f1629;
-        --card: #151e36;
-        --border: #243152;
-        --text: #e6edf7;
-        --muted: #8ea0c2;
+        --bg: #070b14;
+        --panel: #0e1526;
+        --card: #151f38;
+        --card-2: #192542;
+        --border: #253356;
+        --text: #edf2fb;
+        --muted: #8ea2c8;
         --red: #fb7185;
         --red-bg: rgba(244, 63, 94, 0.14);
-        --red-border: rgba(244, 63, 94, 0.45);
+        --red-border: rgba(244, 63, 94, 0.48);
+        --orange: #fb923c;
+        --orange-bg: rgba(251, 146, 60, 0.13);
+        --orange-border: rgba(251, 146, 60, 0.48);
         --green: #34d399;
         --green-bg: rgba(52, 211, 153, 0.12);
-        --green-border: rgba(52, 211, 153, 0.42);
+        --green-border: rgba(52, 211, 153, 0.45);
         --blue: #60a5fa;
-        --blue-bg: rgba(96, 165, 250, 0.14);
+        --blue-bg: rgba(96, 165, 250, 0.15);
         --purple: #c084fc;
         --cyan: #38bdf8;
         --amber: #fbbf24;
@@ -27,7 +31,7 @@
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        background: radial-gradient(circle at top right, #16213e 0%, var(--bg) 55%);
+        background: radial-gradient(circle at top right, #182342 0%, var(--bg) 55%);
         color: var(--text);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
         min-height: 100vh;
@@ -35,55 +39,66 @@
         flex-direction: column;
       }
       header {
-        padding: 16px 24px;
+        padding: 14px 22px;
         border-bottom: 1px solid var(--border);
-        background: rgba(15, 22, 41, 0.9);
+        background: rgba(14, 21, 38, 0.94);
         backdrop-filter: blur(8px);
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 14px;
+        gap: 12px;
       }
       .brand h1 {
         margin: 0;
-        font-size: 22px;
+        font-size: 21px;
         letter-spacing: -0.02em;
         display: flex;
         align-items: center;
         gap: 10px;
       }
       .badge-pill {
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        padding: 3px 8px;
+        padding: 2px 8px;
         border-radius: 999px;
         background: var(--red-bg);
         color: var(--red);
         border: 1px solid var(--red-border);
       }
+      .badge-pill.good {
+        background: var(--green-bg);
+        color: var(--green);
+        border-color: var(--green-border);
+      }
+      .badge-pill.warn {
+        background: var(--orange-bg);
+        color: var(--orange);
+        border-color: var(--orange-border);
+      }
       .brand p {
         margin: 4px 0 0;
-        font-size: 13px;
+        font-size: 12.5px;
         color: var(--muted);
       }
       .controls {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
-      select, button, input[type="text"], textarea {
+      select, button, input[type="text"] {
         font: inherit;
         color: var(--text);
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 13px;
+        padding: 7px 11px;
+        font-size: 12.5px;
       }
+      select { max-width: 250px; }
       button {
         cursor: pointer;
         font-weight: 600;
@@ -91,19 +106,14 @@
       }
       button:hover:not(:disabled) {
         transform: translateY(-1px);
-        border-color: #466099;
+        border-color: #4c68a8;
       }
-      button:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
+      button:disabled { opacity: 0.42; cursor: not-allowed; }
       .btn-primary {
         background: linear-gradient(135deg, #2563eb, #7c3aed);
         border-color: transparent;
       }
-      .btn-secondary {
-        background: #1b2847;
-      }
+      .btn-secondary { background: #1a2849; }
       .btn-backup {
         background: rgba(52, 211, 153, 0.14);
         border-color: var(--green-border);
@@ -118,45 +128,71 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 12.5px;
+        font-size: 12px;
         color: var(--muted);
         background: var(--card);
         border: 1px solid var(--border);
         padding: 6px 10px;
         border-radius: 8px;
+        user-select: none;
       }
 
       .main {
-        padding: 16px 24px 24px;
+        padding: 14px 22px 22px;
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
       }
 
-      .task-bar {
+      .top-strip {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: 12px;
+      }
+      .task-bar, .roster-bar {
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 10px 14px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
       }
-      .task-label {
-        font-size: 11px;
+      .strip-label {
+        font-size: 10.5px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
         color: var(--amber);
-        margin-bottom: 3px;
+        margin-bottom: 5px;
       }
       .task-text {
-        font-size: 13px;
-        line-height: 1.45;
+        font-size: 12.5px;
+        line-height: 1.42;
         color: #d6e0f0;
-        white-space: pre-wrap;
+      }
+      .roster-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .roster-item {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 5px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 11.5px;
+      }
+      .roster-role { font-weight: 700; white-space: nowrap; }
+      .roster-model {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        color: #b7c8e6;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .kpi-grid {
@@ -169,32 +205,82 @@
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      .kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
       }
       .kpi-title {
-        font-size: 11px;
+        font-size: 10.5px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--muted);
-        margin-bottom: 6px;
+        font-weight: 700;
       }
+      .kpi-delta {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid var(--green-border);
+        white-space: nowrap;
+      }
+      .kpi-delta.empty { display: none; }
       .kpi-pair {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
         gap: 8px;
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 700;
       }
       .kpi-side {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 1px;
       }
       .kpi-sub {
+        font-size: 9.5px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .bar-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
         font-size: 10px;
-        font-weight: 600;
         color: var(--muted);
       }
+      .bar-track {
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background: #10182b;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+      }
+      .bar-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        transition: width 0.55s cubic-bezier(.22,1,.36,1);
+      }
+      .bar-fill.bare { background: linear-gradient(90deg, #f43f5e, #fb923c); }
+      .bar-fill.harness { background: linear-gradient(90deg, #10b981, #38bdf8); }
       .val-bad { color: var(--red); }
       .val-good { color: var(--green); }
       .val-neutral { color: var(--text); }
@@ -202,9 +288,9 @@
       .arena {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 14px;
         flex: 1;
-        min-height: 460px;
+        min-height: 440px;
       }
       .lane {
         background: var(--panel);
@@ -218,16 +304,16 @@
       .lane.harness { border-top: 3px solid var(--green); }
 
       .lane-header {
-        padding: 12px 16px;
+        padding: 11px 15px;
         border-bottom: 1px solid var(--border);
-        background: rgba(21, 30, 54, 0.7);
+        background: rgba(21, 31, 56, 0.78);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
       }
       .lane-title {
-        font-size: 15px;
+        font-size: 14.5px;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -265,63 +351,63 @@
       }
 
       .org-bar {
-        padding: 8px 16px;
+        padding: 7px 14px;
         border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12px;
+        gap: 7px;
+        font-size: 11.5px;
         color: var(--muted);
-        background: rgba(11, 16, 32, 0.55);
+        background: rgba(9, 14, 27, 0.65);
         flex-wrap: wrap;
       }
       .actor-pill {
-        padding: 3px 9px;
+        padding: 3px 8px;
         border-radius: 6px;
         background: var(--card);
         border: 1px solid var(--border);
         font-weight: 600;
         transition: all 0.15s ease;
       }
-      .actor-pill.active-lead { border-color: var(--purple); color: var(--purple); background: rgba(192, 132, 252, 0.12); }
-      .actor-pill.active-engineer { border-color: var(--cyan); color: var(--cyan); background: rgba(56, 189, 248, 0.12); }
-      .actor-pill.active-qa { border-color: var(--amber); color: var(--amber); background: rgba(251, 191, 36, 0.12); }
-      .actor-pill.active-user { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
-      .actor-pill.active-harness { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+      .actor-pill.active-lead { border-color: var(--purple); color: var(--purple); background: rgba(192, 132, 252, 0.15); box-shadow: 0 0 12px rgba(192, 132, 252, 0.25); }
+      .actor-pill.active-engineer { border-color: var(--cyan); color: var(--cyan); background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 12px rgba(56, 189, 248, 0.25); }
+      .actor-pill.active-qa { border-color: var(--amber); color: var(--amber); background: rgba(251, 191, 36, 0.15); box-shadow: 0 0 12px rgba(251, 191, 36, 0.25); }
+      .actor-pill.active-user { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); box-shadow: 0 0 12px rgba(96, 165, 250, 0.25); }
+      .actor-pill.active-harness { border-color: var(--red); color: var(--red); background: var(--red-bg); box-shadow: 0 0 12px rgba(244, 63, 94, 0.3); }
 
       .user-modal {
-        margin: 12px 14px 0;
-        padding: 14px;
+        margin: 10px 14px 0;
+        padding: 13px;
         border-radius: 10px;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(124, 58, 237, 0.14));
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(124, 58, 237, 0.15));
         border: 1px solid rgba(96, 165, 250, 0.65);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       }
       .user-modal h3 {
         margin: 0 0 6px;
-        font-size: 13px;
+        font-size: 12.5px;
         color: var(--blue);
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
       .user-modal .q-text {
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 600;
-        margin-bottom: 10px;
+        margin-bottom: 9px;
         line-height: 1.4;
       }
       .user-options {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        margin-bottom: 10px;
+        margin-bottom: 9px;
       }
       .opt-btn {
         text-align: left;
-        background: rgba(15, 22, 41, 0.9);
+        background: rgba(14, 21, 38, 0.92);
         border: 1px solid rgba(96, 165, 250, 0.35);
-        padding: 8px 10px;
-        font-size: 12.5px;
+        padding: 7px 10px;
+        font-size: 12px;
         font-weight: 500;
       }
       .opt-btn:hover {
@@ -330,17 +416,12 @@
       }
       .opt-btn.recommended {
         border-color: var(--green-border);
-        background: rgba(52, 211, 153, 0.12);
+        background: rgba(52, 211, 153, 0.13);
         color: #a7f3d0;
         font-weight: 600;
       }
-      .custom-reply {
-        display: flex;
-        gap: 8px;
-      }
-      .custom-reply input {
-        flex: 1;
-      }
+      .custom-reply { display: flex; gap: 8px; }
+      .custom-reply input { flex: 1; }
 
       .feed {
         padding: 12px 14px;
@@ -349,32 +430,32 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-        max-height: 560px;
+        max-height: 490px;
       }
       .empty-hint {
         color: var(--muted);
         font-size: 13px;
         text-align: center;
-        margin: 48px 16px;
-        line-height: 1.6;
+        margin: 44px 16px;
+        line-height: 1.65;
       }
       .ev {
         border-radius: 8px;
-        padding: 9px 11px;
+        padding: 8px 11px;
         background: var(--card);
         border: 1px solid var(--border);
         font-size: 12.5px;
-        line-height: 1.45;
+        line-height: 1.42;
         animation: fadeIn 0.18s ease-out;
       }
       .ev.brake {
         background: var(--red-bg);
         border-color: var(--red-border);
-        box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.18);
+        box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.22);
       }
       .ev.violation {
-        background: rgba(251, 146, 60, 0.12);
-        border-color: rgba(251, 146, 60, 0.45);
+        background: var(--orange-bg);
+        border-color: var(--orange-border);
       }
       .ev.test-pass {
         background: var(--green-bg);
@@ -386,7 +467,7 @@
       }
       .ev.user-ev {
         background: var(--blue-bg);
-        border-color: rgba(96, 165, 250, 0.4);
+        border-color: rgba(96, 165, 250, 0.42);
       }
       .ev-head {
         display: flex;
@@ -399,6 +480,10 @@
         font-weight: 700;
         font-size: 11px;
         letter-spacing: 0.03em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
       }
       .role-lead { color: var(--purple); }
       .role-engineer { color: var(--cyan); }
@@ -418,13 +503,29 @@
       .ev-detail {
         margin-top: 5px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 11.5px;
+        font-size: 11px;
         color: #b8c7e0;
         white-space: pre-wrap;
         word-break: break-word;
-        max-height: 150px;
+        max-height: 130px;
         overflow-y: auto;
+        background: rgba(7, 11, 20, 0.45);
+        padding: 6px 8px;
+        border-radius: 6px;
       }
+
+      .verdict-footer {
+        padding: 10px 14px;
+        border-top: 1px solid var(--border);
+        background: rgba(11, 16, 32, 0.85);
+        font-size: 12px;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .verdict-footer.visible { display: flex; }
 
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(4px); }
@@ -434,8 +535,12 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.6; }
       }
-      @media (max-width: 1024px) {
-        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      @media (max-width: 1180px) {
+        .top-strip { grid-template-columns: 1fr; }
+        .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 860px) {
+        .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .arena { grid-template-columns: 1fr; }
       }
     </style>
@@ -447,83 +552,134 @@
           🛑 No Micromanaging
           <span class="badge-pill">AI Decelerator Harness</span>
         </h1>
-        <p>Stopping Lead Agents from touching code — forcing User Alignment, Team Delegation &amp; Independent QA</p>
+        <p>Same prompt &amp; tools — the Harness forces the expensive Lead to stay above the code, align with the User, and let the team deliver.</p>
       </div>
       <div class="controls">
-        <select id="modelSelect" title="Model on ai& Inference"></select>
-        <label class="toggle-wrap" title="Pause on ask_user in the Harness lane so you can answer live on stage">
-          <input type="checkbox" id="interactiveToggle" checked />
-          Interactive User Layer
+        <select id="modelSelect" title="Lead model on ai& Inference"></select>
+        <label class="toggle-wrap" title="If checked, Harness pauses on ask_user for you to answer live. If unchecked, the Product Owner model answers automatically.">
+          <input type="checkbox" id="interactiveToggle" />
+          Interactive User
         </label>
-        <button id="btnRunBoth" class="btn-primary">▶ Run Before vs After</button>
-        <button id="btnRunHarness" class="btn-secondary">▶ Run Harness Only</button>
-        <button id="btnReplay" class="btn-backup" disabled>⚡ Replay Saved Backup</button>
+        <button id="btnRunBoth" class="btn-primary">▶ Run Live</button>
+        <button id="btnRunHarness" class="btn-secondary">▶ Harness Only</button>
+        <select id="backupSelect" title="Saved Before+After comparison runs"></select>
+        <button id="btnReplay" class="btn-backup" disabled>⚡ Replay</button>
+        <button id="btnInstant" class="btn-secondary" disabled>📊 Instant</button>
         <button id="btnStop" class="btn-stop" disabled>⏹ Stop</button>
       </div>
     </header>
 
     <div class="main">
-      <div class="task-bar">
-        <div>
-          <div class="task-label">📋 Urgent Launch Request (Identical Prompt &amp; Model on Both Sides)</div>
+      <div class="top-strip">
+        <div class="task-bar">
+          <div class="strip-label">📋 Urgent Launch Request (Identical Input on Both Sides)</div>
           <div class="task-text" id="taskText">Loading...</div>
+        </div>
+        <div class="roster-bar">
+          <div class="strip-label">🎭 Multi-Model Team Roster (on ai&amp; Inference)</div>
+          <div class="roster-grid">
+            <div class="roster-item">
+              <span class="roster-role role-lead">👔 Lead</span>
+              <span class="roster-model" id="rosterLead">—</span>
+            </div>
+            <div class="roster-item">
+              <span class="roster-role role-engineer">🔧 Engineer</span>
+              <span class="roster-model" id="rosterEngineer">—</span>
+            </div>
+            <div class="roster-item">
+              <span class="roster-role role-qa">🧪 QA</span>
+              <span class="roster-model" id="rosterQa">—</span>
+            </div>
+            <div class="roster-item">
+              <span class="roster-role role-user">🧑 User / PO</span>
+              <span class="roster-model" id="rosterUser">—</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-title">Lead Touched Repo / Tests</div>
+          <div class="kpi-top">
+            <div class="kpi-title">Lead Touched Repo</div>
+            <span class="kpi-delta empty" id="deltaExec"></span>
+          </div>
           <div class="kpi-pair">
             <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareExec" class="val-neutral">—</span></div>
             <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessExec" class="val-neutral">—</span></div>
           </div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-title">Team Delegations</div>
+          <div class="kpi-top">
+            <div class="kpi-title">Code Ownership</div>
+            <span class="kpi-delta empty" id="deltaCode"></span>
+          </div>
           <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareDel" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessDel" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareCode" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessCode" class="val-neutral">—</span></div>
           </div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-title">Decelerator Brakes Fired</div>
+          <div class="kpi-top">
+            <div class="kpi-title">Expensive Lead Tokens</div>
+            <span class="kpi-delta empty" id="deltaTokens"></span>
+          </div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTok" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTok" class="val-neutral">—</span></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-row"><span>B</span><div class="bar-track"><div class="bar-fill bare" id="barBareTok"></div></div></div>
+            <div class="bar-row"><span>A</span><div class="bar-track"><div class="bar-fill harness" id="barHarnessTok"></div></div></div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <div class="kpi-title">Delivery Time</div>
+            <span class="kpi-delta empty" id="deltaSpeed"></span>
+          </div>
+          <div class="kpi-pair">
+            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTime" class="val-neutral">—</span></div>
+            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTime" class="val-neutral">—</span></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-row"><span>B</span><div class="bar-track"><div class="bar-fill bare" id="barBareTime"></div></div></div>
+            <div class="bar-row"><span>A</span><div class="bar-track"><div class="bar-fill harness" id="barHarnessTime"></div></div></div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-top">
+            <div class="kpi-title">Brakes &amp; User Layer</div>
+          </div>
           <div class="kpi-pair">
             <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareBrakes" class="val-neutral">—</span></div>
             <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessBrakes" class="val-neutral">—</span></div>
           </div>
         </div>
+
         <div class="kpi-card">
-          <div class="kpi-title">User Alignment (Ask First)</div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareUser" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessUser" class="val-neutral">—</span></div>
+          <div class="kpi-top">
+            <div class="kpi-title">Independent QA</div>
           </div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Independent QA Verified</div>
           <div class="kpi-pair">
             <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareQa" class="val-neutral">—</span></div>
             <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessQa" class="val-neutral">—</span></div>
           </div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Hidden Test Suite</div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTests" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTests" class="val-neutral">—</span></div>
-          </div>
-        </div>
       </div>
 
       <div class="arena">
-        <!-- LEFT LANE: BARE LEAD -->
         <section class="lane bare">
           <div class="lane-header">
             <div class="lane-title">⚠️ BEFORE · Bare Tech Lead (No Harness)</div>
             <span id="statusBare" class="status-chip">Idle</span>
           </div>
           <div class="org-bar" id="orgBare">
-            <span class="actor-pill" data-actor="user">🧑 User</span>
+            <span class="actor-pill" data-actor="user">🧑 User / PO</span>
             <span>↔</span>
             <span class="actor-pill" data-actor="lead">👔 Lead</span>
             <span>→</span>
@@ -533,11 +689,11 @@
           </div>
           <div id="userModalBare"></div>
           <div class="feed" id="feedBare">
-            <div class="empty-hint">Click <b>Run Before vs After</b> to watch what the bare Lead does under launch pressure, or <b>Replay Saved Backup</b> for an instant offline demo.</div>
+            <div class="empty-hint">Click <b>⚡ Replay</b> or <b>📊 Instant</b> to visualize the saved Kimi + DeepSeek + GLM comparison, or <b>▶ Run Live</b> to execute fresh against <code>ai&amp;</code>.</div>
           </div>
+          <div class="verdict-footer" id="footerBare"></div>
         </section>
 
-        <!-- RIGHT LANE: NO MICROMANAGING HARNESS -->
         <section class="lane harness">
           <div class="lane-header">
             <div class="lane-title">🛡️ AFTER · No Micromanaging Harness</div>
@@ -556,8 +712,9 @@
           </div>
           <div id="userModalHarness"></div>
           <div class="feed" id="feedHarness">
-            <div class="empty-hint">Same model, same prompt, same tools — except the <b>AI Decelerator</b> blocks DIY shortcuts, forces User alignment, and enforces independent QA.</div>
+            <div class="empty-hint">Same Lead model, same prompt — except the <b>AI Decelerator</b> blocks DIY file/test access, enforces User alignment, and requires independent QA.</div>
           </div>
+          <div class="verdict-footer" id="footerHarness"></div>
         </section>
       </div>
     </div>
@@ -567,23 +724,48 @@
       let currentSessionId = null;
       let eventSource = null;
       let defaultUserRules = "";
-      let backupPair = null;
+      let defaultModels = null;
+      let savedPairs = [];
+      let reports = { bare: null, harness: null };
+      let qaFailed = { bare: false, harness: false };
+      const PAIR_KEY = "nm-selected-pair";
+      const loadPairPref = () => { try { return localStorage.getItem(PAIR_KEY); } catch { return null; } };
+      const savePairPref = (v) => { try { localStorage.setItem(PAIR_KEY, v); } catch {} };
 
       const ROLE_META = {
         lead: { label: "👔 LEAD", cls: "role-lead" },
         engineer: { label: "🔧 ENGINEER", cls: "role-engineer" },
         qa: { label: "🧪 QA", cls: "role-qa" },
-        user: { label: "🧑 USER", cls: "role-user" },
+        user: { label: "🧑 USER / PO", cls: "role-user" },
         harness: { label: "🛑 DECELERATOR", cls: "role-harness" },
       };
 
       const DIRECT_EXEC_NAMES = new Set(["list_files", "read_file", "write_file", "run_tests"]);
 
       function esc(s) {
+        // Also escape quotes: model-written options land inside data-ans="..." attributes.
         return String(s ?? "")
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function shortModel(m) {
+        return String(m || "—").split("/").pop();
+      }
+
+      function setRoster(models, interactive) {
+        if (!models) return;
+        $("rosterLead").textContent = shortModel(models.lead);
+        $("rosterLead").title = models.lead;
+        $("rosterEngineer").textContent = shortModel(models.engineer);
+        $("rosterEngineer").title = models.engineer;
+        $("rosterQa").textContent = shortModel(models.qa);
+        $("rosterQa").title = models.qa;
+        $("rosterUser").textContent = interactive ? "You (Browser)" : shortModel(models.user);
+        $("rosterUser").title = interactive ? "Interactive presenter" : models.user;
       }
 
       async function loadConfig() {
@@ -591,57 +773,105 @@
         const cfg = await res.json();
         $("taskText").textContent = cfg.defaultTask;
         defaultUserRules = cfg.defaultUserRules;
+        defaultModels = cfg.defaultModels || {
+          lead: cfg.defaultLeadModel,
+          engineer: cfg.defaultLeadModel,
+          qa: cfg.defaultLeadModel,
+          user: "Product Owner",
+        };
+        setRoster(defaultModels, $("interactiveToggle").checked);
 
         const sel = $("modelSelect");
+        const prev = sel.value;
         sel.innerHTML = "";
         for (const m of cfg.models) {
           const opt = document.createElement("option");
           opt.value = m;
-          opt.textContent = m;
-          if (m === cfg.defaultLeadModel) opt.selected = true;
+          opt.textContent = `Lead: ${m}`;
+          if ((prev && m === prev) || (!prev && m === cfg.defaultLeadModel)) opt.selected = true;
           sel.appendChild(opt);
         }
 
         const bRes = await fetch("/api/backups");
         const bData = await bRes.json();
-        if (bData.bare && bData.harness) {
-          backupPair = { bare: bData.bare, harness: bData.harness };
+        savedPairs = bData.pairs || [];
+        const bSel = $("backupSelect");
+        // Keep the presenter's chosen backup pair across reloads (falls back to the latest).
+        const prevPair = bSel.value || loadPairPref();
+        bSel.innerHTML = "";
+        if (savedPairs.length > 0) {
+          for (const p of savedPairs) {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.label;
+            if (prevPair && p.id === prevPair) opt.selected = true;
+            bSel.appendChild(opt);
+          }
           $("btnReplay").disabled = false;
+          $("btnInstant").disabled = false;
+        } else if (bData.bare && bData.harness) {
+          savedPairs = [{ id: "latest", label: "Latest saved pair", bare: bData.bare, harness: bData.harness }];
+          const opt = document.createElement("option");
+          opt.value = "latest";
+          opt.textContent = "Latest saved pair";
+          bSel.appendChild(opt);
+          $("btnReplay").disabled = false;
+          $("btnInstant").disabled = false;
         }
       }
 
       function setRunning(running) {
         $("btnRunBoth").disabled = running;
         $("btnRunHarness").disabled = running;
-        $("btnReplay").disabled = running || !backupPair;
+        $("btnReplay").disabled = running || savedPairs.length === 0;
+        $("btnInstant").disabled = running || savedPairs.length === 0;
         $("btnStop").disabled = !running;
+      }
+
+      function resetDeltas() {
+        for (const id of ["deltaExec", "deltaCode", "deltaTokens", "deltaSpeed"]) {
+          $(id).className = "kpi-delta empty";
+          $(id).textContent = "";
+        }
+        for (const id of ["barBareTok", "barHarnessTok", "barBareTime", "barHarnessTime"]) {
+          $(id).style.width = "0%";
+        }
       }
 
       function resetUI(modes) {
         if (modes.includes("bare")) {
+          reports.bare = null;
+          qaFailed.bare = false;
           $("feedBare").innerHTML = "";
           $("userModalBare").innerHTML = "";
+          $("footerBare").className = "verdict-footer";
+          $("footerBare").innerHTML = "";
           $("statusBare").className = "status-chip";
           $("statusBare").textContent = "Queued";
           $("kpiBareExec").textContent = "—";
-          $("kpiBareDel").textContent = "—";
+          $("kpiBareCode").textContent = "—";
+          $("kpiBareTok").textContent = "—";
+          $("kpiBareTime").textContent = "—";
           $("kpiBareBrakes").textContent = "—";
-          $("kpiBareUser").textContent = "—";
           $("kpiBareQa").textContent = "—";
-          $("kpiBareTests").textContent = "—";
         }
         if (modes.includes("harness")) {
+          reports.harness = null;
+          qaFailed.harness = false;
           $("feedHarness").innerHTML = "";
           $("userModalHarness").innerHTML = "";
+          $("footerHarness").className = "verdict-footer";
+          $("footerHarness").innerHTML = "";
           $("statusHarness").className = "status-chip";
           $("statusHarness").textContent = "Queued";
           $("kpiHarnessExec").textContent = "—";
-          $("kpiHarnessDel").textContent = "—";
+          $("kpiHarnessCode").textContent = "—";
+          $("kpiHarnessTok").textContent = "—";
+          $("kpiHarnessTime").textContent = "—";
           $("kpiHarnessBrakes").textContent = "—";
-          $("kpiHarnessUser").textContent = "—";
           $("kpiHarnessQa").textContent = "—";
-          $("kpiHarnessTests").textContent = "—";
         }
+        resetDeltas();
       }
 
       function highlightActor(mode, role) {
@@ -656,8 +886,16 @@
         const feed = $(mode === "bare" ? "feedBare" : "feedHarness");
         highlightActor(mode, ev.role);
 
-        const meta = ROLE_META[ev.role] || { label: ev.role, cls: "" };
+        // The final hidden-suite run is the harness's ground-truth check, not the Decelerator
+        // (which is switched off in the BEFORE lane).
+        const isGroundTruth = ev.role === "harness" && ev.kind === "test_result";
+        const meta = isGroundTruth
+          ? { label: "🧾 GROUND TRUTH", cls: "role-harness" }
+          : ROLE_META[ev.role] || { label: ev.role, cls: "" };
         const div = document.createElement("div");
+
+        // Remember a failed QA run so a Lead edit right after it reads as a takeover.
+        if (ev.role === "qa" && ev.kind === "test_result") qaFailed[mode] = !ev.passed;
 
         let extraCls = "";
         if (ev.kind === "brake") extraCls = "brake";
@@ -674,17 +912,30 @@
 
         div.className = `ev ${extraCls}`;
         const sec = (ev.ts / 1000).toFixed(1) + "s";
-        const badge = ev.brakeKind ? ` <span class="badge-pill">${esc(ev.brakeKind)}</span>` : "";
+        const badge = ev.brakeKind ? `<span class="badge-pill">${esc(ev.brakeKind)}</span>` : "";
+        const isTakeover = extraCls === "violation" && qaFailed[mode] && ev.title.startsWith("write_file");
         const violationBadge =
-          extraCls === "violation" ? ` <span class="badge-pill">DIY MICROMANAGE</span>` : "";
+          extraCls === "violation"
+            ? `<span class="badge-pill${isTakeover ? "" : " warn"}">${isTakeover ? "TAKEOVER AFTER QA FAIL" : "DIY MICROMANAGE"}</span>`
+            : "";
+
+        let detailText = ev.detail && ev.kind !== "user_question" ? ev.detail : "";
+        if (ev.kind === "user_question" && ev.detail) {
+          try {
+            const parsed = JSON.parse(ev.detail);
+            if (Array.isArray(parsed.options) && parsed.options.length > 0) {
+              detailText = parsed.options.map((o, i) => `[${i + 1}] ${o}`).join("\n");
+            }
+          } catch {}
+        }
 
         div.innerHTML = `
           <div class="ev-head">
-            <span class="ev-role ${meta.cls}">${meta.label}${badge}${violationBadge}</span>
+            <span class="ev-role ${meta.cls}">${meta.label} ${badge}${violationBadge}</span>
             <span class="ev-time">${sec}</span>
           </div>
           <div class="ev-title">${esc(ev.title)}</div>
-          ${ev.detail && ev.kind !== "user_question" ? `<div class="ev-detail">${esc(ev.detail.slice(0, 700))}</div>` : ""}
+          ${detailText ? `<div class="ev-detail">${esc(detailText.slice(0, 700))}</div>` : ""}
         `;
         feed.appendChild(div);
         feed.scrollTop = feed.scrollHeight;
@@ -697,10 +948,7 @@
         status.textContent = "Waiting for User";
 
         const optsHtml = (q.options || [])
-          .map(
-            (o, idx) =>
-              `<button class="opt-btn" data-ans="${esc(o)}">[${idx + 1}] ${esc(o)}</button>`,
-          )
+          .map((o, idx) => `<button class="opt-btn" data-ans="${esc(o)}">[${idx + 1}] ${esc(o)}</button>`)
           .join("");
 
         host.innerHTML = `
@@ -709,7 +957,7 @@
             <div class="q-text">${esc(q.question)}</div>
             <div class="user-options">
               <button class="opt-btn recommended" data-ans="${esc(defaultUserRules)}">
-                ✨ Recommended Launch Policy: ${esc(defaultUserRules)}
+                ✨ Confirmed Launch Policy: ${esc(defaultUserRules)}
               </button>
               ${optsHtml}
             </div>
@@ -746,45 +994,90 @@
         });
       }
 
+      function updateComparisons() {
+        const b = reports.bare;
+        const h = reports.harness;
+        if (!b || !h) return;
+
+        const maxTok = Math.max(b.leadTokens, h.leadTokens, 1);
+        $("barBareTok").style.width = `${Math.round((b.leadTokens / maxTok) * 100)}%`;
+        $("barHarnessTok").style.width = `${Math.round((h.leadTokens / maxTok) * 100)}%`;
+        if (b.leadTokens > 0 && h.leadTokens < b.leadTokens) {
+          const pct = Math.round(((b.leadTokens - h.leadTokens) / b.leadTokens) * 100);
+          $("deltaTokens").textContent = `-${pct}%`;
+          $("deltaTokens").className = "kpi-delta";
+        }
+
+        const maxTime = Math.max(b.seconds, h.seconds, 1);
+        $("barBareTime").style.width = `${Math.round((b.seconds / maxTime) * 100)}%`;
+        $("barHarnessTime").style.width = `${Math.round((h.seconds / maxTime) * 100)}%`;
+        if (h.seconds > 0 && h.seconds < b.seconds) {
+          const mult = (b.seconds / h.seconds).toFixed(1);
+          $("deltaSpeed").textContent = `${mult}x faster`;
+          $("deltaSpeed").className = "kpi-delta";
+        }
+
+        const bDirect = b.leadExecAttempts - b.leadExecBlocked;
+        if (bDirect > 0) {
+          $("deltaExec").textContent = `${bDirect}x → 0x`;
+          $("deltaExec").className = "kpi-delta";
+        }
+        if (b.leadWrites > 0 && h.leadWrites === 0 && h.engineerWrites > 0) {
+          $("deltaCode").textContent = `100% delegated`;
+          $("deltaCode").className = "kpi-delta";
+        }
+      }
+
       function updateScoreboard(mode, rep) {
+        reports[mode] = rep;
+        if (rep.models) setRoster(rep.models, false);
+
         const isBare = mode === "bare";
         const p = isBare ? "Bare" : "Harness";
         const direct = rep.leadExecAttempts - rep.leadExecBlocked;
-        const totalDel = (rep.delegationsEngineer || 0) + (rep.delegationsQa || 0);
 
         const execEl = $(`kpi${p}Exec`);
         execEl.textContent = `${direct}x` + (rep.leadExecBlocked ? ` (${rep.leadExecBlocked} braked)` : "");
         execEl.className = direct === 0 ? "val-good" : "val-bad";
 
-        const delEl = $(`kpi${p}Del`);
-        delEl.textContent =
-          totalDel === 0
-            ? `0 (Lead coded)`
-            : `${totalDel} (${rep.delegationsEngineer} eng · ${rep.delegationsQa} qa)`;
-        delEl.className = totalDel > 0 && rep.leadWrites === 0 ? "val-good" : "val-bad";
+        const codeEl = $(`kpi${p}Code`);
+        codeEl.textContent = `Lead ${rep.leadWrites} · Eng ${rep.engineerWrites}`;
+        codeEl.className = rep.leadWrites === 0 && rep.engineerWrites > 0 ? "val-good" : "val-bad";
+
+        const tokEl = $(`kpi${p}Tok`);
+        tokEl.textContent = rep.leadTokens.toLocaleString();
+        tokEl.className = isBare ? "val-neutral" : reports.bare && rep.leadTokens < reports.bare.leadTokens ? "val-good" : "val-neutral";
+
+        const timeEl = $(`kpi${p}Time`);
+        timeEl.textContent = `${rep.seconds}s`;
+        timeEl.className = isBare ? "val-neutral" : reports.bare && rep.seconds < reports.bare.seconds ? "val-good" : "val-neutral";
 
         const brakeEl = $(`kpi${p}Brakes`);
-        brakeEl.textContent = String(rep.brakes.length);
-        brakeEl.className = isBare ? "val-neutral" : rep.brakes.length > 0 ? "val-good" : "val-neutral";
-
-        const userEl = $(`kpi${p}User`);
-        userEl.textContent = rep.userClarified ? `✓ (${rep.userQuestions}x)` : "✗ Guessed";
-        userEl.className = rep.userClarified ? "val-good" : "val-bad";
+        brakeEl.textContent = isBare
+          ? `${rep.brakes.length} · ${rep.userClarified ? "Ask✓" : "Ask✗"}`
+          : `${rep.brakes.length}🛑 · ${rep.userClarified ? "Ask✓" : "Ask✗"}`;
+        brakeEl.className = isBare ? "val-neutral" : rep.brakes.length > 0 && rep.userClarified ? "val-good" : "val-neutral";
 
         const qaEl = $(`kpi${p}Qa`);
-        qaEl.textContent = rep.qaVerified ? "✓ Passed" : "✗ Unverified";
-        qaEl.className = rep.qaVerified ? "val-good" : "val-bad";
-
-        const testEl = $(`kpi${p}Tests`);
-        testEl.textContent = `${rep.finalTests.pass}/${rep.finalTests.total}`;
-        testEl.className = rep.finalTests.passed ? "val-good" : "val-bad";
+        qaEl.textContent = `${rep.qaVerified ? "✓" : "✗"} · ${rep.finalTests.pass}/${rep.finalTests.total}`;
+        qaEl.className = rep.qaVerified && rep.finalTests.passed ? "val-good" : "val-bad";
 
         const healthy = rep.finalTests.passed && direct === 0 && rep.qaVerified && rep.userClarified;
         const status = $(`status${p}`);
         status.className = "status-chip " + (healthy ? "pass" : "fail");
         status.textContent = healthy
           ? `${rep.seconds}s · Clean Delegation ✓`
-          : `${rep.seconds}s · ${direct > 0 ? "Micromanaged ✗" : "Failed ✗"}`;
+          : `${rep.seconds}s · ${direct > 0 ? "Micromanaged ✗" : "Unverified ✗"}`;
+
+        const footer = $(`footer${p}`);
+        footer.className = "verdict-footer visible";
+        footer.innerHTML = `
+          <span>Delegations: <b>@eng ${rep.delegationsEngineer}</b> · <b>@qa ${rep.delegationsQa}</b></span>
+          <span>Team tokens: <b>${rep.teamTokens.toLocaleString()}</b></span>
+          <span class="badge-pill ${healthy ? "good" : "warn"}">${healthy ? "PASS + GOVERNED" : "VIOLATED BOUNDARIES"}</span>
+        `;
+
+        updateComparisons();
       }
 
       function attachStream(sessionId) {
@@ -808,7 +1101,7 @@
           } else if (data.type === "all_done" || data.type === "stopped") {
             setRunning(false);
             eventSource.close();
-            loadConfig(); // refresh saved backup availability
+            loadConfig();
           }
         };
 
@@ -821,6 +1114,9 @@
       async function startRun(mode) {
         const modes = mode === "both" ? ["bare", "harness"] : [mode];
         resetUI(modes);
+        if (defaultModels) {
+          setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
+        }
         setRunning(true);
         const res = await fetch("/api/start", {
           method: "POST",
@@ -836,23 +1132,33 @@
         attachStream(currentSessionId);
       }
 
-      async function startReplay() {
-        if (!backupPair) return;
+      async function startReplay(speed) {
+        const selectedId = $("backupSelect").value;
+        const pair = savedPairs.find((p) => p.id === selectedId) || savedPairs[0];
+        if (!pair) return;
         resetUI(["bare", "harness"]);
         setRunning(true);
         const res = await fetch("/api/replay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(backupPair),
+          body: JSON.stringify({ bare: pair.bare, harness: pair.harness, speed }),
         });
         const data = await res.json();
         currentSessionId = data.sessionId;
         attachStream(currentSessionId);
       }
 
+      $("backupSelect").addEventListener("change", () => savePairPref($("backupSelect").value));
+      $("interactiveToggle").addEventListener("change", () => {
+        if (defaultModels) setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
+      });
+      $("modelSelect").addEventListener("change", () => {
+        if (defaultModels) setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
+      });
       $("btnRunBoth").addEventListener("click", () => startRun("both"));
       $("btnRunHarness").addEventListener("click", () => startRun("harness"));
-      $("btnReplay").addEventListener("click", startReplay);
+      $("btnReplay").addEventListener("click", () => startReplay("fast"));
+      $("btnInstant").addEventListener("click", () => startReplay("instant"));
       $("btnStop").addEventListener("click", async () => {
         if (!currentSessionId) return;
         await fetch("/api/stop", {
@@ -863,7 +1169,10 @@
         setRunning(false);
       });
 
-      loadConfig();
+      loadConfig().then(() => {
+        // Pre-populate Instant comparison view if a saved run exists, so opening localhost:3810 looks great immediately!
+        if (savedPairs.length > 0) startReplay("instant");
+      });
     </script>
   </body>
 </html>

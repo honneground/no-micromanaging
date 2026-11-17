@@ -116,15 +116,13 @@ function findLatestBackups(): { bare: string | null; harness: string | null; pai
     if (rep) entries.push({ dir: d, rep });
   }
 
+  // A pair is a bare run immediately followed by a harness run (one `--mode both` run).
+  // Matching by adjacency keeps a lone harness-only run from shifting every pair.
   const pairs: BackupPair[] = [];
-  const usedBare = new Set<string>();
-  for (const h of entries) {
-    if (h.rep.mode !== "harness") continue;
-    const matchBare = entries.find(
-      (b) => b.rep.mode === "bare" && b.dir < h.dir && !usedBare.has(b.dir),
-    );
-    if (!matchBare) continue;
-    usedBare.add(matchBare.dir);
+  for (let i = 0; i < entries.length - 1; i++) {
+    const h = entries[i]; // entries are newest first
+    const matchBare = entries[i + 1];
+    if (h.rep.mode !== "harness" || matchBare.rep.mode !== "bare") continue;
     const lead = h.rep.models?.lead ?? h.rep.model;
     const isMulti = h.rep.models && h.rep.models.lead !== h.rep.models.engineer;
     const tag = isMulti ? `${lead.split("/").pop()} + team` : lead.split("/").pop();

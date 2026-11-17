@@ -128,11 +128,17 @@ async function replayOne(dir: string) {
 
 async function replay(target: string) {
   if (target === "latest") {
+    // Latest bare run that is immediately followed by a harness run (one `--mode both` run).
     const runs = savedRuns();
-    const lastHarness = [...runs].reverse().find((r) => r.report.mode === "harness");
-    const lastBare = lastHarness
-      ? [...runs].reverse().find((r) => r.report.mode === "bare" && r.dir < lastHarness.dir)
-      : undefined;
+    let lastBare: SavedRun | undefined;
+    let lastHarness: SavedRun | undefined;
+    for (let i = runs.length - 1; i > 0; i--) {
+      if (runs[i].report.mode === "harness" && runs[i - 1].report.mode === "bare") {
+        lastHarness = runs[i];
+        lastBare = runs[i - 1];
+        break;
+      }
+    }
     if (!lastHarness || !lastBare) {
       console.log("Need at least one saved before+after pair. Run: npm run team");
       return;
