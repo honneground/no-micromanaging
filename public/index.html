@@ -3,1176 +3,520 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>No Micromanaging — AI Decelerator Harness</title>
+    <title>No Micromanaging</title>
     <style>
       :root {
-        --bg: #070b14;
-        --panel: #0e1526;
-        --card: #151f38;
-        --card-2: #192542;
-        --border: #253356;
-        --text: #edf2fb;
-        --muted: #8ea2c8;
-        --red: #fb7185;
-        --red-bg: rgba(244, 63, 94, 0.14);
-        --red-border: rgba(244, 63, 94, 0.48);
-        --orange: #fb923c;
-        --orange-bg: rgba(251, 146, 60, 0.13);
-        --orange-border: rgba(251, 146, 60, 0.48);
-        --green: #34d399;
-        --green-bg: rgba(52, 211, 153, 0.12);
-        --green-border: rgba(52, 211, 153, 0.45);
-        --blue: #60a5fa;
-        --blue-bg: rgba(96, 165, 250, 0.15);
-        --purple: #c084fc;
-        --cyan: #38bdf8;
-        --amber: #fbbf24;
+        --bg: #f5f6f8;
+        --panel: #ffffff;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --red: #dc2626;
+        --red-bg: #fef2f2;
+        --orange: #c2410c;
+        --orange-bg: #fff7ed;
+        --green: #047857;
+        --green-bg: #ecfdf5;
+        --blue: #1d4ed8;
+        --blue-bg: #eff6ff;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        background: radial-gradient(circle at top right, #182342 0%, var(--bg) 55%);
-        color: var(--text);
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       }
-      header {
-        padding: 14px 22px;
-        border-bottom: 1px solid var(--border);
-        background: rgba(14, 21, 38, 0.94);
-        backdrop-filter: blur(8px);
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-      }
-      .brand h1 {
-        margin: 0;
-        font-size: 21px;
-        letter-spacing: -0.02em;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .badge-pill {
-        font-size: 10.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--red-bg);
-        color: var(--red);
-        border: 1px solid var(--red-border);
-      }
-      .badge-pill.good {
-        background: var(--green-bg);
-        color: var(--green);
-        border-color: var(--green-border);
-      }
-      .badge-pill.warn {
-        background: var(--orange-bg);
-        color: var(--orange);
-        border-color: var(--orange-border);
-      }
-      .brand p {
-        margin: 4px 0 0;
-        font-size: 12.5px;
-        color: var(--muted);
-      }
-      .controls {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 24px 28px; }
+
+      /* Header */
+      header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+      .thesis { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+      .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       select, button, input[type="text"] {
-        font: inherit;
-        color: var(--text);
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 7px 11px;
-        font-size: 12.5px;
+        font: inherit; font-size: 14px; color: var(--ink);
+        background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
       }
-      select { max-width: 250px; }
-      button {
-        cursor: pointer;
-        font-weight: 600;
-        transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+      button { cursor: pointer; font-weight: 600; }
+      button:disabled { opacity: 0.45; cursor: not-allowed; }
+      .primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .stop { color: var(--red); border-color: #fecaca; }
+      details.live { position: relative; }
+      details.live > summary {
+        list-style: none; cursor: pointer; font-weight: 600; font-size: 14px;
+        padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
       }
-      button:hover:not(:disabled) {
-        transform: translateY(-1px);
-        border-color: #4c68a8;
+      details.live > summary::-webkit-details-marker { display: none; }
+      .live-menu {
+        position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; width: 300px;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12); display: grid; gap: 8px;
       }
-      button:disabled { opacity: 0.42; cursor: not-allowed; }
-      .btn-primary {
-        background: linear-gradient(135deg, #2563eb, #7c3aed);
-        border-color: transparent;
-      }
-      .btn-secondary { background: #1a2849; }
-      .btn-backup {
-        background: rgba(52, 211, 153, 0.14);
-        border-color: var(--green-border);
-        color: var(--green);
-      }
-      .btn-stop {
-        background: var(--red-bg);
-        border-color: var(--red-border);
-        color: var(--red);
-      }
-      .toggle-wrap {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: var(--muted);
-        background: var(--card);
-        border: 1px solid var(--border);
-        padding: 6px 10px;
-        border-radius: 8px;
-        user-select: none;
-      }
+      .live-menu label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+      .live-menu select { width: 100%; }
 
-      .main {
-        padding: 14px 22px 22px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+      .meta { margin-top: 14px; display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13.5px; }
+      .meta b { color: var(--ink); font-weight: 600; }
+      details.task { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+      details.task summary { cursor: pointer; }
+      details.task p { margin: 6px 0 0; color: var(--ink); max-width: 900px; }
 
-      .top-strip {
-        display: grid;
-        grid-template-columns: 1.3fr 1fr;
-        gap: 12px;
-      }
-      .task-bar, .roster-bar {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px 14px;
-      }
-      .strip-label {
-        font-size: 10.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--amber);
-        margin-bottom: 5px;
-      }
-      .task-text {
-        font-size: 12.5px;
-        line-height: 1.42;
-        color: #d6e0f0;
-      }
-      .roster-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
-      }
-      .roster-item {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 7px;
-        padding: 5px 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 6px;
-        font-size: 11.5px;
-      }
-      .roster-role { font-weight: 700; white-space: nowrap; }
-      .roster-model {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 11px;
-        color: #b7c8e6;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
+      /* KPIs */
+      .kpis { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+      .kpi h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+      .kpi .vals { margin-top: 6px; display: flex; align-items: baseline; gap: 12px; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+      .kpi .arrow { color: var(--muted); font-size: 22px; font-weight: 400; }
+      .kpi .delta { margin-left: auto; font-size: 14px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+      .delta.good { color: var(--green); background: var(--green-bg); }
+      .delta.bad { color: var(--red); background: var(--red-bg); }
+      .kpi .labels { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+      .bad-v { color: var(--red); }
+      .good-v { color: var(--green); }
+      .note { margin: 10px 2px 0; font-size: 13.5px; color: var(--muted); min-height: 20px; }
 
-      .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-        gap: 10px;
-      }
-      .kpi-card {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px 12px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 6px;
-      }
-      .kpi-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 6px;
-      }
-      .kpi-title {
-        font-size: 10.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--muted);
-        font-weight: 700;
-      }
-      .kpi-delta {
-        font-size: 10px;
-        font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 999px;
-        background: var(--green-bg);
-        color: var(--green);
-        border: 1px solid var(--green-border);
-        white-space: nowrap;
-      }
-      .kpi-delta.empty { display: none; }
-      .kpi-pair {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 8px;
-        font-size: 13.5px;
-        font-weight: 700;
-      }
-      .kpi-side {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-      }
-      .kpi-sub {
-        font-size: 9.5px;
-        font-weight: 700;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-      }
-      .bar-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .bar-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 10px;
-        color: var(--muted);
-      }
-      .bar-track {
-        flex: 1;
-        height: 6px;
-        border-radius: 999px;
-        background: #10182b;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.05);
-      }
-      .bar-fill {
-        height: 100%;
-        width: 0%;
-        border-radius: 999px;
-        transition: width 0.55s cubic-bezier(.22,1,.36,1);
-      }
-      .bar-fill.bare { background: linear-gradient(90deg, #f43f5e, #fb923c); }
-      .bar-fill.harness { background: linear-gradient(90deg, #10b981, #38bdf8); }
-      .val-bad { color: var(--red); }
-      .val-good { color: var(--green); }
-      .val-neutral { color: var(--text); }
+      /* Lanes */
+      .arena { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .lane { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 460px; }
+      .lane-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+      .lane-head h2 { margin: 0; font-size: 16px; }
+      .lane-head .sub { font-size: 12.5px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+      .lane.bare .lane-head { border-top: 4px solid var(--red); border-radius: 12px 12px 0 0; }
+      .lane.harness .lane-head { border-top: 4px solid var(--green); border-radius: 12px 12px 0 0; }
+      .chip { font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); white-space: nowrap; }
+      .chip.run { color: var(--blue); background: var(--blue-bg); }
+      .chip.good { color: var(--green); background: var(--green-bg); }
+      .chip.bad { color: var(--red); background: var(--red-bg); }
+      /* Keep both lanes on one projector screen; the feed scrolls inside. */
+      .feed { flex: 1; overflow-y: auto; padding: 8px 10px; max-height: max(260px, calc(100vh - 400px)); }
+      .lane { min-height: 0; }
+      .empty { color: var(--muted); text-align: center; margin: 60px 20px; }
 
-      .arena {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-        flex: 1;
-        min-height: 440px;
-      }
-      .lane {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
-      .lane.bare { border-top: 3px solid var(--red); }
-      .lane.harness { border-top: 3px solid var(--green); }
+      .row { display: grid; grid-template-columns: 112px 1fr auto; gap: 10px; align-items: start; padding: 7px 8px; border-radius: 8px; animation: in 0.2s ease-out; }
+      .row + .row { margin-top: 2px; }
+      .who { font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+      .what { font-size: 14.5px; word-break: break-word; }
+      .t { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+      .tag { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; padding: 1px 7px; border-radius: 999px; vertical-align: 1px; }
+      .tone-red { background: var(--red-bg); }
+      .tone-red .tag { color: #fff; background: var(--red); }
+      .tone-orange { background: var(--orange-bg); }
+      .tone-orange .tag { color: var(--orange); background: #ffedd5; }
+      .tone-green { background: var(--green-bg); }
+      .tone-blue { background: var(--blue-bg); }
+      .tone-truth { border: 1px dashed var(--line); margin-top: 6px !important; }
+      .tone-truth.pass { border-color: #a7f3d0; background: var(--green-bg); }
+      .tone-truth.fail { border-color: #fecaca; background: var(--red-bg); }
 
-      .lane-header {
-        padding: 11px 15px;
-        border-bottom: 1px solid var(--border);
-        background: rgba(21, 31, 56, 0.78);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .lane-title {
-        font-size: 14.5px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .status-chip {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 3px 9px;
-        border-radius: 999px;
-        background: var(--card);
-        color: var(--muted);
-        border: 1px solid var(--border);
-      }
-      .status-chip.running {
-        color: var(--amber);
-        border-color: rgba(251, 191, 36, 0.45);
-        background: rgba(251, 191, 36, 0.12);
-      }
-      .status-chip.waiting {
-        color: var(--blue);
-        border-color: rgba(96, 165, 250, 0.55);
-        background: var(--blue-bg);
-        animation: pulse 1.3s infinite;
-      }
-      .status-chip.pass {
-        color: var(--green);
-        border-color: var(--green-border);
-        background: var(--green-bg);
-      }
-      .status-chip.fail {
-        color: var(--red);
-        border-color: var(--red-border);
-        background: var(--red-bg);
-      }
+      /* User question dialog (interactive mode) */
+      .dialog-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); display: none; align-items: center; justify-content: center; z-index: 10; padding: 16px; }
+      .dialog-bg.open { display: flex; }
+      .dialog { width: min(560px, 100%); background: var(--panel); border-radius: 14px; padding: 20px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); }
+      .dialog h4 { margin: 0 0 4px; font-size: 13px; color: var(--blue); text-transform: uppercase; letter-spacing: 0.05em; }
+      .dialog .q { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+      .dialog .opts { display: grid; gap: 8px; margin-bottom: 12px; }
+      .dialog .opts button { text-align: left; font-weight: 500; }
+      .dialog .opts button:hover { border-color: var(--blue); background: var(--blue-bg); }
+      .dialog .custom { display: flex; gap: 8px; }
+      .dialog .custom input { flex: 1; }
 
-      .org-bar {
-        padding: 7px 14px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 11.5px;
-        color: var(--muted);
-        background: rgba(9, 14, 27, 0.65);
-        flex-wrap: wrap;
-      }
-      .actor-pill {
-        padding: 3px 8px;
-        border-radius: 6px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        font-weight: 600;
-        transition: all 0.15s ease;
-      }
-      .actor-pill.active-lead { border-color: var(--purple); color: var(--purple); background: rgba(192, 132, 252, 0.15); box-shadow: 0 0 12px rgba(192, 132, 252, 0.25); }
-      .actor-pill.active-engineer { border-color: var(--cyan); color: var(--cyan); background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 12px rgba(56, 189, 248, 0.25); }
-      .actor-pill.active-qa { border-color: var(--amber); color: var(--amber); background: rgba(251, 191, 36, 0.15); box-shadow: 0 0 12px rgba(251, 191, 36, 0.25); }
-      .actor-pill.active-user { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); box-shadow: 0 0 12px rgba(96, 165, 250, 0.25); }
-      .actor-pill.active-harness { border-color: var(--red); color: var(--red); background: var(--red-bg); box-shadow: 0 0 12px rgba(244, 63, 94, 0.3); }
-
-      .user-modal {
-        margin: 10px 14px 0;
-        padding: 13px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(124, 58, 237, 0.15));
-        border: 1px solid rgba(96, 165, 250, 0.65);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      }
-      .user-modal h3 {
-        margin: 0 0 6px;
-        font-size: 12.5px;
-        color: var(--blue);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .user-modal .q-text {
-        font-size: 13.5px;
-        font-weight: 600;
-        margin-bottom: 9px;
-        line-height: 1.4;
-      }
-      .user-options {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-bottom: 9px;
-      }
-      .opt-btn {
-        text-align: left;
-        background: rgba(14, 21, 38, 0.92);
-        border: 1px solid rgba(96, 165, 250, 0.35);
-        padding: 7px 10px;
-        font-size: 12px;
-        font-weight: 500;
-      }
-      .opt-btn:hover {
-        border-color: var(--blue);
-        background: rgba(37, 99, 235, 0.22);
-      }
-      .opt-btn.recommended {
-        border-color: var(--green-border);
-        background: rgba(52, 211, 153, 0.13);
-        color: #a7f3d0;
-        font-weight: 600;
-      }
-      .custom-reply { display: flex; gap: 8px; }
-      .custom-reply input { flex: 1; }
-
-      .feed {
-        padding: 12px 14px;
-        overflow-y: auto;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-height: 490px;
-      }
-      .empty-hint {
-        color: var(--muted);
-        font-size: 13px;
-        text-align: center;
-        margin: 44px 16px;
-        line-height: 1.65;
-      }
-      .ev {
-        border-radius: 8px;
-        padding: 8px 11px;
-        background: var(--card);
-        border: 1px solid var(--border);
-        font-size: 12.5px;
-        line-height: 1.42;
-        animation: fadeIn 0.18s ease-out;
-      }
-      .ev.brake {
-        background: var(--red-bg);
-        border-color: var(--red-border);
-        box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.22);
-      }
-      .ev.violation {
-        background: var(--orange-bg);
-        border-color: var(--orange-border);
-      }
-      .ev.test-pass {
-        background: var(--green-bg);
-        border-color: var(--green-border);
-      }
-      .ev.test-fail {
-        background: var(--red-bg);
-        border-color: var(--red-border);
-      }
-      .ev.user-ev {
-        background: var(--blue-bg);
-        border-color: rgba(96, 165, 250, 0.42);
-      }
-      .ev-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 3px;
-      }
-      .ev-role {
-        font-weight: 700;
-        font-size: 11px;
-        letter-spacing: 0.03em;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-      }
-      .role-lead { color: var(--purple); }
-      .role-engineer { color: var(--cyan); }
-      .role-qa { color: var(--amber); }
-      .role-user { color: var(--blue); }
-      .role-harness { color: var(--red); }
-      .ev-time {
-        font-size: 11px;
-        color: var(--muted);
-        font-variant-numeric: tabular-nums;
-      }
-      .ev-title {
-        font-weight: 600;
-        color: var(--text);
-        word-break: break-word;
-      }
-      .ev-detail {
-        margin-top: 5px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 11px;
-        color: #b8c7e0;
-        white-space: pre-wrap;
-        word-break: break-word;
-        max-height: 130px;
-        overflow-y: auto;
-        background: rgba(7, 11, 20, 0.45);
-        padding: 6px 8px;
-        border-radius: 6px;
-      }
-
-      .verdict-footer {
-        padding: 10px 14px;
-        border-top: 1px solid var(--border);
-        background: rgba(11, 16, 32, 0.85);
-        font-size: 12px;
-        display: none;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .verdict-footer.visible { display: flex; }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-      }
-      @media (max-width: 1180px) {
-        .top-strip { grid-template-columns: 1fr; }
-        .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      }
-      @media (max-width: 860px) {
-        .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .arena { grid-template-columns: 1fr; }
+      @keyframes in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+      @media (max-width: 900px) {
+        .kpis, .arena { grid-template-columns: 1fr; }
+        .wrap { padding: 16px; }
+        .row { grid-template-columns: 96px 1fr auto; }
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="brand">
-        <h1>
-          🛑 No Micromanaging
-          <span class="badge-pill">AI Decelerator Harness</span>
-        </h1>
-        <p>Same prompt &amp; tools — the Harness forces the expensive Lead to stay above the code, align with the User, and let the team deliver.</p>
-      </div>
-      <div class="controls">
-        <select id="modelSelect" title="Lead model on ai& Inference"></select>
-        <label class="toggle-wrap" title="If checked, Harness pauses on ask_user for you to answer live. If unchecked, the Product Owner model answers automatically.">
-          <input type="checkbox" id="interactiveToggle" />
-          Interactive User
-        </label>
-        <button id="btnRunBoth" class="btn-primary">▶ Run Live</button>
-        <button id="btnRunHarness" class="btn-secondary">▶ Harness Only</button>
-        <select id="backupSelect" title="Saved Before+After comparison runs"></select>
-        <button id="btnReplay" class="btn-backup" disabled>⚡ Replay</button>
-        <button id="btnInstant" class="btn-secondary" disabled>📊 Instant</button>
-        <button id="btnStop" class="btn-stop" disabled>⏹ Stop</button>
-      </div>
-    </header>
-
-    <div class="main">
-      <div class="top-strip">
-        <div class="task-bar">
-          <div class="strip-label">📋 Urgent Launch Request (Identical Input on Both Sides)</div>
-          <div class="task-text" id="taskText">Loading...</div>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>🛑 No Micromanaging</h1>
+          <p class="thesis">Same model, same prompt, same tools. Only the harness changes.</p>
         </div>
-        <div class="roster-bar">
-          <div class="strip-label">🎭 Multi-Model Team Roster (on ai&amp; Inference)</div>
-          <div class="roster-grid">
-            <div class="roster-item">
-              <span class="roster-role role-lead">👔 Lead</span>
-              <span class="roster-model" id="rosterLead">—</span>
+        <div class="controls">
+          <select id="pairSelect" title="Saved before + after run"></select>
+          <button id="btnReplay" class="primary" disabled>▶ Replay</button>
+          <details class="live" id="liveMenu">
+            <summary>Live run ▾</summary>
+            <div class="live-menu">
+              <label>Lead model</label>
+              <select id="modelSelect"></select>
+              <label><input type="checkbox" id="interactiveToggle" /> I answer the Lead's questions</label>
+              <button id="btnRunBoth" class="primary">Run before + after</button>
+              <button id="btnRunHarness">Run after only</button>
             </div>
-            <div class="roster-item">
-              <span class="roster-role role-engineer">🔧 Engineer</span>
-              <span class="roster-model" id="rosterEngineer">—</span>
-            </div>
-            <div class="roster-item">
-              <span class="roster-role role-qa">🧪 QA</span>
-              <span class="roster-model" id="rosterQa">—</span>
-            </div>
-            <div class="roster-item">
-              <span class="roster-role role-user">🧑 User / PO</span>
-              <span class="roster-model" id="rosterUser">—</span>
-            </div>
-          </div>
+          </details>
+          <button id="btnStop" class="stop" hidden>Stop</button>
         </div>
-      </div>
+      </header>
 
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Lead Touched Repo</div>
-            <span class="kpi-delta empty" id="deltaExec"></span>
-          </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareExec" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessExec" class="val-neutral">—</span></div>
-          </div>
+      <div class="meta" id="roster"></div>
+      <details class="task">
+        <summary>The task (identical on both sides)</summary>
+        <p id="taskText">Loading…</p>
+      </details>
+
+      <section class="kpis">
+        <div class="kpi">
+          <h3>Lead did the team's work itself</h3>
+          <div class="vals"><span id="kExecB">—</span><span class="arrow">→</span><span id="kExecA">—</span></div>
+          <div class="labels"><span>before → after</span></div>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Code Ownership</div>
-            <span class="kpi-delta empty" id="deltaCode"></span>
-          </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareCode" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessCode" class="val-neutral">—</span></div>
-          </div>
+        <div class="kpi">
+          <h3>Expensive model (Lead) tokens</h3>
+          <div class="vals"><span id="kTokB">—</span><span class="arrow">→</span><span id="kTokA">—</span><span id="kTokD" class="delta" hidden></span></div>
+          <div class="labels"><span>before → after</span></div>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Expensive Lead Tokens</div>
-            <span class="kpi-delta empty" id="deltaTokens"></span>
-          </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTok" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTok" class="val-neutral">—</span></div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-row"><span>B</span><div class="bar-track"><div class="bar-fill bare" id="barBareTok"></div></div></div>
-            <div class="bar-row"><span>A</span><div class="bar-track"><div class="bar-fill harness" id="barHarnessTok"></div></div></div>
-          </div>
+        <div class="kpi">
+          <h3>Final code checked by independent QA</h3>
+          <div class="vals"><span id="kQaB">—</span><span class="arrow">→</span><span id="kQaA">—</span></div>
+          <div class="labels"><span>before → after</span></div>
         </div>
+      </section>
+      <p class="note" id="note"></p>
 
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Delivery Time</div>
-            <span class="kpi-delta empty" id="deltaSpeed"></span>
+      <section class="arena">
+        <div class="lane bare">
+          <div class="lane-head">
+            <h2>Before <span class="sub">no harness</span></h2>
+            <span class="chip" id="chipBare">Idle</span>
           </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareTime" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessTime" class="val-neutral">—</span></div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-row"><span>B</span><div class="bar-track"><div class="bar-fill bare" id="barBareTime"></div></div></div>
-            <div class="bar-row"><span>A</span><div class="bar-track"><div class="bar-fill harness" id="barHarnessTime"></div></div></div>
-          </div>
+          <div class="feed" id="feedBare"><p class="empty">Pick a saved run and press ▶ Replay.</p></div>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Brakes &amp; User Layer</div>
+        <div class="lane harness">
+          <div class="lane-head">
+            <h2>After <span class="sub">AI Decelerator on</span></h2>
+            <span class="chip" id="chipHarness">Idle</span>
           </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareBrakes" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessBrakes" class="val-neutral">—</span></div>
-          </div>
+          <div class="feed" id="feedHarness"><p class="empty">The Lead is braked whenever it tries to do the team's work.</p></div>
         </div>
+      </section>
+    </div>
 
-        <div class="kpi-card">
-          <div class="kpi-top">
-            <div class="kpi-title">Independent QA</div>
-          </div>
-          <div class="kpi-pair">
-            <div class="kpi-side"><span class="kpi-sub">BEFORE</span><span id="kpiBareQa" class="val-neutral">—</span></div>
-            <div class="kpi-side"><span class="kpi-sub">AFTER</span><span id="kpiHarnessQa" class="val-neutral">—</span></div>
-          </div>
+    <div class="dialog-bg" id="dialog">
+      <div class="dialog">
+        <h4>The Lead is asking you</h4>
+        <div class="q" id="dlgQ"></div>
+        <div class="opts" id="dlgOpts"></div>
+        <div class="custom">
+          <input type="text" id="dlgInput" placeholder="Or type your own answer…" />
+          <button id="dlgSend" class="primary">Send</button>
         </div>
-      </div>
-
-      <div class="arena">
-        <section class="lane bare">
-          <div class="lane-header">
-            <div class="lane-title">⚠️ BEFORE · Bare Tech Lead (No Harness)</div>
-            <span id="statusBare" class="status-chip">Idle</span>
-          </div>
-          <div class="org-bar" id="orgBare">
-            <span class="actor-pill" data-actor="user">🧑 User / PO</span>
-            <span>↔</span>
-            <span class="actor-pill" data-actor="lead">👔 Lead</span>
-            <span>→</span>
-            <span class="actor-pill" data-actor="engineer">🔧 Engineer</span>
-            <span>·</span>
-            <span class="actor-pill" data-actor="qa">🧪 QA</span>
-          </div>
-          <div id="userModalBare"></div>
-          <div class="feed" id="feedBare">
-            <div class="empty-hint">Click <b>⚡ Replay</b> or <b>📊 Instant</b> to visualize the saved Kimi + DeepSeek + GLM comparison, or <b>▶ Run Live</b> to execute fresh against <code>ai&amp;</code>.</div>
-          </div>
-          <div class="verdict-footer" id="footerBare"></div>
-        </section>
-
-        <section class="lane harness">
-          <div class="lane-header">
-            <div class="lane-title">🛡️ AFTER · No Micromanaging Harness</div>
-            <span id="statusHarness" class="status-chip">Idle</span>
-          </div>
-          <div class="org-bar" id="orgHarness">
-            <span class="actor-pill" data-actor="user">🧑 User Layer</span>
-            <span>↔</span>
-            <span class="actor-pill" data-actor="harness">🛑 Decelerator</span>
-            <span>↔</span>
-            <span class="actor-pill" data-actor="lead">👔 Lead</span>
-            <span>→</span>
-            <span class="actor-pill" data-actor="engineer">🔧 Engineer</span>
-            <span>·</span>
-            <span class="actor-pill" data-actor="qa">🧪 QA</span>
-          </div>
-          <div id="userModalHarness"></div>
-          <div class="feed" id="feedHarness">
-            <div class="empty-hint">Same Lead model, same prompt — except the <b>AI Decelerator</b> blocks DIY file/test access, enforces User alignment, and requires independent QA.</div>
-          </div>
-          <div class="verdict-footer" id="footerHarness"></div>
-        </section>
       </div>
     </div>
 
     <script>
       const $ = (id) => document.getElementById(id);
-      let currentSessionId = null;
-      let eventSource = null;
-      let defaultUserRules = "";
-      let defaultModels = null;
-      let savedPairs = [];
-      let reports = { bare: null, harness: null };
-      let qaFailed = { bare: false, harness: false };
+      const S = {
+        session: null,
+        es: null,
+        pairs: [],
+        reports: { bare: null, harness: null },
+        qaFailed: { bare: false, harness: false },
+        models: null,
+        pendingQ: null,
+      };
       const PAIR_KEY = "nm-selected-pair";
-      const loadPairPref = () => { try { return localStorage.getItem(PAIR_KEY); } catch { return null; } };
-      const savePairPref = (v) => { try { localStorage.setItem(PAIR_KEY, v); } catch {} };
+      const getPref = () => { try { return localStorage.getItem(PAIR_KEY); } catch { return null; } };
+      const setPref = (v) => { try { localStorage.setItem(PAIR_KEY, v); } catch {} };
 
-      const ROLE_META = {
-        lead: { label: "👔 LEAD", cls: "role-lead" },
-        engineer: { label: "🔧 ENGINEER", cls: "role-engineer" },
-        qa: { label: "🧪 QA", cls: "role-qa" },
-        user: { label: "🧑 USER / PO", cls: "role-user" },
-        harness: { label: "🛑 DECELERATOR", cls: "role-harness" },
+      const esc = (s) => String(s ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      const short = (m) => String(m || "—").split("/").pop();
+      const clip = (s, n) => { const t = String(s ?? "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+      const kfmt = (n) => (n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n));
+      const score = (s) => (String(s).match(/(\d+)\/(\d+)/) || []).slice(1).map(Number);
+
+      const WHO = {
+        lead: "👔 Lead",
+        engineer: "🔧 Engineer",
+        qa: "🧪 QA",
+        user: "🧑 User",
+        harness: "🛑 Harness",
+      };
+      const DIY_TEXT = {
+        list_files: "Browses the repo itself",
+        read_file: "Reads the code itself",
+        write_file: "Writes the code itself",
+        run_tests: "Runs the tests itself",
       };
 
-      const DIRECT_EXEC_NAMES = new Set(["list_files", "read_file", "write_file", "run_tests"]);
-
-      function esc(s) {
-        // Also escape quotes: model-written options land inside data-ans="..." attributes.
-        return String(s ?? "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
-      }
-
-      function shortModel(m) {
-        return String(m || "—").split("/").pop();
-      }
-
-      function setRoster(models, interactive) {
-        if (!models) return;
-        $("rosterLead").textContent = shortModel(models.lead);
-        $("rosterLead").title = models.lead;
-        $("rosterEngineer").textContent = shortModel(models.engineer);
-        $("rosterEngineer").title = models.engineer;
-        $("rosterQa").textContent = shortModel(models.qa);
-        $("rosterQa").title = models.qa;
-        $("rosterUser").textContent = interactive ? "You (Browser)" : shortModel(models.user);
-        $("rosterUser").title = interactive ? "Interactive presenter" : models.user;
-      }
-
-      async function loadConfig() {
-        const res = await fetch("/api/config");
-        const cfg = await res.json();
-        $("taskText").textContent = cfg.defaultTask;
-        defaultUserRules = cfg.defaultUserRules;
-        defaultModels = cfg.defaultModels || {
-          lead: cfg.defaultLeadModel,
-          engineer: cfg.defaultLeadModel,
-          qa: cfg.defaultLeadModel,
-          user: "Product Owner",
-        };
-        setRoster(defaultModels, $("interactiveToggle").checked);
-
-        const sel = $("modelSelect");
-        const prev = sel.value;
-        sel.innerHTML = "";
-        for (const m of cfg.models) {
-          const opt = document.createElement("option");
-          opt.value = m;
-          opt.textContent = `Lead: ${m}`;
-          if ((prev && m === prev) || (!prev && m === cfg.defaultLeadModel)) opt.selected = true;
-          sel.appendChild(opt);
+      // ── Turn a timeline event into one readable line (or skip the noise) ──
+      function describe(mode, ev) {
+        const title = String(ev.title || "");
+        if (ev.kind === "brake") {
+          const what = title === "Blocked premature completion" ? "reporting done before QA passed" : title.replace(/^Blocked /, "");
+          return { who: "harness", text: `Blocked: ${what}`, tone: "red", tag: ev.brakeKind || "BRAKE" };
         }
-
-        const bRes = await fetch("/api/backups");
-        const bData = await bRes.json();
-        savedPairs = bData.pairs || [];
-        const bSel = $("backupSelect");
-        // Keep the presenter's chosen backup pair across reloads (falls back to the latest).
-        const prevPair = bSel.value || loadPairPref();
-        bSel.innerHTML = "";
-        if (savedPairs.length > 0) {
-          for (const p of savedPairs) {
-            const opt = document.createElement("option");
-            opt.value = p.id;
-            opt.textContent = p.label;
-            if (prevPair && p.id === prevPair) opt.selected = true;
-            bSel.appendChild(opt);
+        if (ev.kind === "user_question") return { who: "lead", text: `Asks the user: “${clip(title, 120)}”`, tone: "blue" };
+        if (ev.kind === "user_answer") return { who: "user", text: `“${clip(title, 110)}”`, tone: "blue" };
+        if (ev.kind === "answer") return ev.role === "lead" ? { who: "lead", text: "Tells the user it's done" } : null;
+        if (ev.kind === "error") return { who: ev.role, text: clip(title, 140), tone: "red" };
+        if (ev.kind === "test_result") {
+          const [p, t] = score(title);
+          const ok = !!ev.passed;
+          if (ev.role === "harness") return { who: "truth", text: `Hidden test suite: ${p}/${t}`, tone: "truth " + (ok ? "pass" : "fail") };
+          if (ev.role === "qa") {
+            S.qaFailed[mode] = !ok;
+            return { who: "qa", text: `${p}/${t} tests pass ${ok ? "✅" : "❌"}`, tone: ok ? "green" : "red" };
           }
-          $("btnReplay").disabled = false;
-          $("btnInstant").disabled = false;
-        } else if (bData.bare && bData.harness) {
-          savedPairs = [{ id: "latest", label: "Latest saved pair", bare: bData.bare, harness: bData.harness }];
-          const opt = document.createElement("option");
-          opt.value = "latest";
-          opt.textContent = "Latest saved pair";
-          bSel.appendChild(opt);
-          $("btnReplay").disabled = false;
-          $("btnInstant").disabled = false;
+          return { who: ev.role, text: `Own test run: ${p}/${t} ${ok ? "✅" : "❌"}` };
         }
-      }
-
-      function setRunning(running) {
-        $("btnRunBoth").disabled = running;
-        $("btnRunHarness").disabled = running;
-        $("btnReplay").disabled = running || savedPairs.length === 0;
-        $("btnInstant").disabled = running || savedPairs.length === 0;
-        $("btnStop").disabled = !running;
-      }
-
-      function resetDeltas() {
-        for (const id of ["deltaExec", "deltaCode", "deltaTokens", "deltaSpeed"]) {
-          $(id).className = "kpi-delta empty";
-          $(id).textContent = "";
-        }
-        for (const id of ["barBareTok", "barHarnessTok", "barBareTime", "barHarnessTime"]) {
-          $(id).style.width = "0%";
-        }
-      }
-
-      function resetUI(modes) {
-        if (modes.includes("bare")) {
-          reports.bare = null;
-          qaFailed.bare = false;
-          $("feedBare").innerHTML = "";
-          $("userModalBare").innerHTML = "";
-          $("footerBare").className = "verdict-footer";
-          $("footerBare").innerHTML = "";
-          $("statusBare").className = "status-chip";
-          $("statusBare").textContent = "Queued";
-          $("kpiBareExec").textContent = "—";
-          $("kpiBareCode").textContent = "—";
-          $("kpiBareTok").textContent = "—";
-          $("kpiBareTime").textContent = "—";
-          $("kpiBareBrakes").textContent = "—";
-          $("kpiBareQa").textContent = "—";
-        }
-        if (modes.includes("harness")) {
-          reports.harness = null;
-          qaFailed.harness = false;
-          $("feedHarness").innerHTML = "";
-          $("userModalHarness").innerHTML = "";
-          $("footerHarness").className = "verdict-footer";
-          $("footerHarness").innerHTML = "";
-          $("statusHarness").className = "status-chip";
-          $("statusHarness").textContent = "Queued";
-          $("kpiHarnessExec").textContent = "—";
-          $("kpiHarnessCode").textContent = "—";
-          $("kpiHarnessTok").textContent = "—";
-          $("kpiHarnessTime").textContent = "—";
-          $("kpiHarnessBrakes").textContent = "—";
-          $("kpiHarnessQa").textContent = "—";
-        }
-        resetDeltas();
-      }
-
-      function highlightActor(mode, role) {
-        const bar = $(mode === "bare" ? "orgBare" : "orgHarness");
-        for (const el of bar.querySelectorAll(".actor-pill")) {
-          const actor = el.getAttribute("data-actor");
-          el.className = "actor-pill" + (actor === role ? ` active-${role}` : "");
-        }
-      }
-
-      function appendEvent(mode, ev) {
-        const feed = $(mode === "bare" ? "feedBare" : "feedHarness");
-        highlightActor(mode, ev.role);
-
-        // The final hidden-suite run is the harness's ground-truth check, not the Decelerator
-        // (which is switched off in the BEFORE lane).
-        const isGroundTruth = ev.role === "harness" && ev.kind === "test_result";
-        const meta = isGroundTruth
-          ? { label: "🧾 GROUND TRUTH", cls: "role-harness" }
-          : ROLE_META[ev.role] || { label: ev.role, cls: "" };
-        const div = document.createElement("div");
-
-        // Remember a failed QA run so a Lead edit right after it reads as a takeover.
-        if (ev.role === "qa" && ev.kind === "test_result") qaFailed[mode] = !ev.passed;
-
-        let extraCls = "";
-        if (ev.kind === "brake") extraCls = "brake";
-        else if (ev.kind === "test_result") extraCls = ev.passed ? "test-pass" : "test-fail";
-        else if (ev.kind === "user_question" || ev.kind === "user_answer") extraCls = "user-ev";
-        else if (
-          mode === "bare" &&
-          ev.role === "lead" &&
-          ev.kind === "tool_call" &&
-          Array.from(DIRECT_EXEC_NAMES).some((n) => ev.title.startsWith(n))
-        ) {
-          extraCls = "violation";
-        }
-
-        div.className = `ev ${extraCls}`;
-        const sec = (ev.ts / 1000).toFixed(1) + "s";
-        const badge = ev.brakeKind ? `<span class="badge-pill">${esc(ev.brakeKind)}</span>` : "";
-        const isTakeover = extraCls === "violation" && qaFailed[mode] && ev.title.startsWith("write_file");
-        const violationBadge =
-          extraCls === "violation"
-            ? `<span class="badge-pill${isTakeover ? "" : " warn"}">${isTakeover ? "TAKEOVER AFTER QA FAIL" : "DIY MICROMANAGE"}</span>`
-            : "";
-
-        let detailText = ev.detail && ev.kind !== "user_question" ? ev.detail : "";
-        if (ev.kind === "user_question" && ev.detail) {
-          try {
-            const parsed = JSON.parse(ev.detail);
-            if (Array.isArray(parsed.options) && parsed.options.length > 0) {
-              detailText = parsed.options.map((o, i) => `[${i + 1}] ${o}`).join("\n");
+        if (ev.kind === "tool_call") {
+          if (ev.role === "lead") {
+            if (title.startsWith("delegate_task → @engineer")) return { who: "lead", text: "Hands the task to 🔧 Engineer" };
+            if (title.startsWith("delegate_task → @qa")) return { who: "lead", text: "Asks 🧪 QA to verify" };
+            const name = Object.keys(DIY_TEXT).find((n) => title.startsWith(n));
+            if (name) {
+              const takeover = name === "write_file" && S.qaFailed[mode];
+              return takeover
+                ? { who: "lead", text: "Fixes QA's failure itself", tone: "red", tag: "TAKEOVER" }
+                : { who: "lead", text: DIY_TEXT[name], tone: "orange", tag: "DIY" };
             }
-          } catch {}
+            return null;
+          }
+          if (ev.role === "engineer" && title.startsWith("write_file")) return { who: "engineer", text: "Writes the code" };
+          return null; // engineer reads, QA's run_tests call (its result has a row)
         }
+        return null; // sub-agent reports and other info
+      }
 
-        div.innerHTML = `
-          <div class="ev-head">
-            <span class="ev-role ${meta.cls}">${meta.label} ${badge}${violationBadge}</span>
-            <span class="ev-time">${sec}</span>
-          </div>
-          <div class="ev-title">${esc(ev.title)}</div>
-          ${detailText ? `<div class="ev-detail">${esc(detailText.slice(0, 700))}</div>` : ""}
-        `;
-        feed.appendChild(div);
+      function addRow(mode, ev) {
+        const d = describe(mode, ev);
+        if (!d) return;
+        const feed = $(mode === "bare" ? "feedBare" : "feedHarness");
+        const empty = feed.querySelector(".empty");
+        if (empty) empty.remove();
+        const row = document.createElement("div");
+        row.className = "row" + (d.tone ? " " + d.tone.split(" ").map((t) => (t === "pass" || t === "fail" ? t : "tone-" + t)).join(" ") : "");
+        if (ev.detail) row.title = String(ev.detail).slice(0, 1200);
+        const who = d.who === "truth" ? "🧾 Ground truth" : WHO[d.who] || d.who;
+        row.innerHTML =
+          `<span class="who">${esc(who)}</span>` +
+          `<span class="what">${esc(d.text)}${d.tag ? `<span class="tag">${esc(d.tag)}</span>` : ""}</span>` +
+          `<span class="t">${(ev.ts / 1000).toFixed(0)}s</span>`;
+        feed.appendChild(row);
         feed.scrollTop = feed.scrollHeight;
       }
 
-      function showUserModal(mode, questionId, q) {
-        const host = $(mode === "bare" ? "userModalBare" : "userModalHarness");
-        const status = $(mode === "bare" ? "statusBare" : "statusHarness");
-        status.className = "status-chip waiting";
-        status.textContent = "Waiting for User";
-
-        const optsHtml = (q.options || [])
-          .map((o, idx) => `<button class="opt-btn" data-ans="${esc(o)}">[${idx + 1}] ${esc(o)}</button>`)
-          .join("");
-
-        host.innerHTML = `
-          <div class="user-modal">
-            <h3>🧑 User Communication Layer · Decision Needed</h3>
-            <div class="q-text">${esc(q.question)}</div>
-            <div class="user-options">
-              <button class="opt-btn recommended" data-ans="${esc(defaultUserRules)}">
-                ✨ Confirmed Launch Policy: ${esc(defaultUserRules)}
-              </button>
-              ${optsHtml}
-            </div>
-            <div class="custom-reply">
-              <input type="text" id="customReplyInput_${mode}" placeholder="Or type a custom rule for the Lead..." />
-              <button class="btn-primary" id="customReplyBtn_${mode}">Send</button>
-            </div>
-          </div>
-        `;
-
-        const sendReply = async (answer) => {
-          host.innerHTML = "";
-          status.className = "status-chip running";
-          status.textContent = "Running";
-          await fetch("/api/reply", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId: currentSessionId, questionId, answer }),
-          });
-        };
-
-        for (const btn of host.querySelectorAll(".opt-btn")) {
-          btn.addEventListener("click", () => sendReply(btn.getAttribute("data-ans")));
+      // ── Header numbers ──
+      function direct(r) { return (r.leadExecAttempts || 0) - (r.leadExecBlocked || 0); }
+      function renderKpis() {
+        const b = S.reports.bare, a = S.reports.harness;
+        const setV = (id, text, good) => { const el = $(id); el.textContent = text; el.className = good === undefined ? "" : good ? "good-v" : "bad-v"; };
+        if (b) {
+          setV("kExecB", direct(b) + "×", direct(b) === 0);
+          setV("kTokB", kfmt(b.leadTokens || 0));
+          setV("kQaB", b.qaVerified ? "✓" : "✗", !!b.qaVerified);
         }
-        $(`customReplyBtn_${mode}`).addEventListener("click", () => {
-          const val = $(`customReplyInput_${mode}`).value.trim();
-          if (val) sendReply(val);
+        if (a) {
+          setV("kExecA", direct(a) + "×", direct(a) === 0);
+          setV("kTokA", kfmt(a.leadTokens || 0));
+          setV("kQaA", a.qaVerified ? "✓" : "✗", !!a.qaVerified);
+        }
+        const d = $("kTokD");
+        if (a && b && b.leadTokens > 0) {
+          const pct = Math.round(((a.leadTokens - b.leadTokens) / b.leadTokens) * 100);
+          d.hidden = false;
+          d.textContent = (pct > 0 ? "+" : "") + pct + "%";
+          d.className = "delta " + (pct <= 0 ? "good" : "bad");
+        } else {
+          d.hidden = true;
+        }
+        if (a && b && a.finalTests && b.finalTests) {
+          const both = a.finalTests.passed && b.finalTests.passed;
+          $("note").textContent = both
+            ? `Both versions pass the hidden test suite (${a.finalTests.pass}/${a.finalTests.total}). The difference is who did the work, who checked it, and what it cost.`
+            : `Hidden test suite: before ${b.finalTests.pass}/${b.finalTests.total}, after ${a.finalTests.pass}/${a.finalTests.total}.`;
+        } else {
+          $("note").textContent = "";
+        }
+      }
+
+      function setChip(mode, cls, text) {
+        const el = $(mode === "bare" ? "chipBare" : "chipHarness");
+        el.className = "chip" + (cls ? " " + cls : "");
+        el.textContent = text;
+      }
+
+      function finishLane(mode, rep) {
+        S.reports[mode] = rep;
+        if (rep.models) renderRoster(rep.models);
+        const clean = direct(rep) === 0 && rep.qaVerified;
+        setChip(mode, clean ? "good" : "bad", `${clean ? "Delegated cleanly" : "Micromanaged"} · ${rep.seconds}s`);
+        renderKpis();
+      }
+
+      function renderRoster(m, youAnswer) {
+        if (!m) return;
+        $("roster").innerHTML =
+          `<span>👔 Lead <b>${esc(short(m.lead))}</b></span>` +
+          `<span>🔧 Engineer <b>${esc(short(m.engineer))}</b></span>` +
+          `<span>🧪 QA <b>${esc(short(m.qa))}</b></span>` +
+          `<span>🧑 User <b>${esc(youAnswer ? "you" : short(m.user))}</b></span>`;
+      }
+
+      function resetLanes(modes) {
+        for (const mode of modes) {
+          S.reports[mode] = null;
+          S.qaFailed[mode] = false;
+          $(mode === "bare" ? "feedBare" : "feedHarness").innerHTML = "";
+          setChip(mode, "", "Waiting");
+        }
+        for (const id of ["kExecB", "kExecA", "kTokB", "kTokA", "kQaB", "kQaA"]) {
+          const side = id.endsWith("B") ? "bare" : "harness";
+          if (modes.includes(side)) { $(id).textContent = "—"; $(id).className = ""; }
+        }
+        renderKpis();
+      }
+
+      function setRunning(on) {
+        $("btnReplay").disabled = on || S.pairs.length === 0;
+        $("btnRunBoth").disabled = on;
+        $("btnRunHarness").disabled = on;
+        $("btnStop").hidden = !on;
+      }
+
+      // ── Interactive user (live mode only) ──
+      function askUser(questionId, q) {
+        S.pendingQ = questionId;
+        $("dlgQ").textContent = q.question;
+        const opts = $("dlgOpts");
+        opts.innerHTML = "";
+        (q.options || []).forEach((o, i) => {
+          const b = document.createElement("button");
+          b.textContent = `${i + 1}. ${o}`;
+          b.addEventListener("click", () => reply(o)); // text passed directly, no attribute round-trip
+          opts.appendChild(b);
         });
-        $(`customReplyInput_${mode}`).addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            const val = e.target.value.trim();
-            if (val) sendReply(val);
-          }
-        });
+        $("dlgInput").value = "";
+        $("dialog").classList.add("open");
       }
-
-      function updateComparisons() {
-        const b = reports.bare;
-        const h = reports.harness;
-        if (!b || !h) return;
-
-        const maxTok = Math.max(b.leadTokens, h.leadTokens, 1);
-        $("barBareTok").style.width = `${Math.round((b.leadTokens / maxTok) * 100)}%`;
-        $("barHarnessTok").style.width = `${Math.round((h.leadTokens / maxTok) * 100)}%`;
-        if (b.leadTokens > 0 && h.leadTokens < b.leadTokens) {
-          const pct = Math.round(((b.leadTokens - h.leadTokens) / b.leadTokens) * 100);
-          $("deltaTokens").textContent = `-${pct}%`;
-          $("deltaTokens").className = "kpi-delta";
-        }
-
-        const maxTime = Math.max(b.seconds, h.seconds, 1);
-        $("barBareTime").style.width = `${Math.round((b.seconds / maxTime) * 100)}%`;
-        $("barHarnessTime").style.width = `${Math.round((h.seconds / maxTime) * 100)}%`;
-        if (h.seconds > 0 && h.seconds < b.seconds) {
-          const mult = (b.seconds / h.seconds).toFixed(1);
-          $("deltaSpeed").textContent = `${mult}x faster`;
-          $("deltaSpeed").className = "kpi-delta";
-        }
-
-        const bDirect = b.leadExecAttempts - b.leadExecBlocked;
-        if (bDirect > 0) {
-          $("deltaExec").textContent = `${bDirect}x → 0x`;
-          $("deltaExec").className = "kpi-delta";
-        }
-        if (b.leadWrites > 0 && h.leadWrites === 0 && h.engineerWrites > 0) {
-          $("deltaCode").textContent = `100% delegated`;
-          $("deltaCode").className = "kpi-delta";
-        }
-      }
-
-      function updateScoreboard(mode, rep) {
-        reports[mode] = rep;
-        if (rep.models) setRoster(rep.models, false);
-
-        const isBare = mode === "bare";
-        const p = isBare ? "Bare" : "Harness";
-        const direct = rep.leadExecAttempts - rep.leadExecBlocked;
-
-        const execEl = $(`kpi${p}Exec`);
-        execEl.textContent = `${direct}x` + (rep.leadExecBlocked ? ` (${rep.leadExecBlocked} braked)` : "");
-        execEl.className = direct === 0 ? "val-good" : "val-bad";
-
-        const codeEl = $(`kpi${p}Code`);
-        codeEl.textContent = `Lead ${rep.leadWrites} · Eng ${rep.engineerWrites}`;
-        codeEl.className = rep.leadWrites === 0 && rep.engineerWrites > 0 ? "val-good" : "val-bad";
-
-        const tokEl = $(`kpi${p}Tok`);
-        tokEl.textContent = rep.leadTokens.toLocaleString();
-        tokEl.className = isBare ? "val-neutral" : reports.bare && rep.leadTokens < reports.bare.leadTokens ? "val-good" : "val-neutral";
-
-        const timeEl = $(`kpi${p}Time`);
-        timeEl.textContent = `${rep.seconds}s`;
-        timeEl.className = isBare ? "val-neutral" : reports.bare && rep.seconds < reports.bare.seconds ? "val-good" : "val-neutral";
-
-        const brakeEl = $(`kpi${p}Brakes`);
-        brakeEl.textContent = isBare
-          ? `${rep.brakes.length} · ${rep.userClarified ? "Ask✓" : "Ask✗"}`
-          : `${rep.brakes.length}🛑 · ${rep.userClarified ? "Ask✓" : "Ask✗"}`;
-        brakeEl.className = isBare ? "val-neutral" : rep.brakes.length > 0 && rep.userClarified ? "val-good" : "val-neutral";
-
-        const qaEl = $(`kpi${p}Qa`);
-        qaEl.textContent = `${rep.qaVerified ? "✓" : "✗"} · ${rep.finalTests.pass}/${rep.finalTests.total}`;
-        qaEl.className = rep.qaVerified && rep.finalTests.passed ? "val-good" : "val-bad";
-
-        const healthy = rep.finalTests.passed && direct === 0 && rep.qaVerified && rep.userClarified;
-        const status = $(`status${p}`);
-        status.className = "status-chip " + (healthy ? "pass" : "fail");
-        status.textContent = healthy
-          ? `${rep.seconds}s · Clean Delegation ✓`
-          : `${rep.seconds}s · ${direct > 0 ? "Micromanaged ✗" : "Unverified ✗"}`;
-
-        const footer = $(`footer${p}`);
-        footer.className = "verdict-footer visible";
-        footer.innerHTML = `
-          <span>Delegations: <b>@eng ${rep.delegationsEngineer}</b> · <b>@qa ${rep.delegationsQa}</b></span>
-          <span>Team tokens: <b>${rep.teamTokens.toLocaleString()}</b></span>
-          <span class="badge-pill ${healthy ? "good" : "warn"}">${healthy ? "PASS + GOVERNED" : "VIOLATED BOUNDARIES"}</span>
-        `;
-
-        updateComparisons();
-      }
-
-      function attachStream(sessionId) {
-        if (eventSource) eventSource.close();
-        eventSource = new EventSource(`/api/events?sessionId=${encodeURIComponent(sessionId)}`);
-
-        eventSource.onmessage = (msg) => {
-          const data = JSON.parse(msg.data);
-          if (data.type === "phase_start") {
-            const st = $(data.mode === "bare" ? "statusBare" : "statusHarness");
-            st.className = "status-chip running";
-            st.textContent = "Running…";
-          } else if (data.type === "timeline") {
-            appendEvent(data.mode, data.event);
-          } else if (data.type === "user_question") {
-            showUserModal(data.mode, data.questionId, data.question);
-          } else if (data.type === "user_answered") {
-            $(data.mode === "bare" ? "userModalBare" : "userModalHarness").innerHTML = "";
-          } else if (data.type === "phase_done") {
-            updateScoreboard(data.mode, data.report);
-          } else if (data.type === "all_done" || data.type === "stopped") {
-            setRunning(false);
-            eventSource.close();
-            loadConfig();
-          }
-        };
-
-        eventSource.onerror = () => {
-          setRunning(false);
-          eventSource?.close();
-        };
-      }
-
-      async function startRun(mode) {
-        const modes = mode === "both" ? ["bare", "harness"] : [mode];
-        resetUI(modes);
-        if (defaultModels) {
-          setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
-        }
-        setRunning(true);
-        const res = await fetch("/api/start", {
+      async function reply(answer) {
+        const qid = S.pendingQ;
+        if (!qid || !answer) return;
+        S.pendingQ = null;
+        $("dialog").classList.remove("open");
+        await fetch("/api/reply", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mode,
-            model: $("modelSelect").value,
-            interactive: $("interactiveToggle").checked,
-          }),
+          body: JSON.stringify({ sessionId: S.session, questionId: qid, answer }),
         });
-        const data = await res.json();
-        currentSessionId = data.sessionId;
-        attachStream(currentSessionId);
+      }
+      $("dlgSend").addEventListener("click", () => reply($("dlgInput").value.trim()));
+      $("dlgInput").addEventListener("keydown", (e) => { if (e.key === "Enter") reply(e.target.value.trim()); });
+
+      // ── Streaming ──
+      function listen(sessionId) {
+        if (S.es) S.es.close();
+        S.session = sessionId;
+        S.es = new EventSource(`/api/events?sessionId=${encodeURIComponent(sessionId)}`);
+        S.es.onmessage = (msg) => {
+          const data = JSON.parse(msg.data);
+          if (data.type === "phase_start") setChip(data.mode, "run", "Running…");
+          else if (data.type === "timeline") addRow(data.mode, data.event);
+          else if (data.type === "user_question") askUser(data.questionId, data.question);
+          else if (data.type === "user_answered") $("dialog").classList.remove("open");
+          else if (data.type === "phase_done") finishLane(data.mode, data.report);
+          else if (data.type === "all_done" || data.type === "stopped") {
+            setRunning(false);
+            S.es.close();
+            if (data.type === "stopped") {
+              for (const m of ["bare", "harness"]) if (!S.reports[m] && $(m === "bare" ? "chipBare" : "chipHarness").textContent !== "Idle") setChip(m, "", "Stopped");
+            }
+            loadPairs();
+          }
+        };
+        S.es.onerror = () => { setRunning(false); S.es.close(); };
       }
 
-      async function startReplay(speed) {
-        const selectedId = $("backupSelect").value;
-        const pair = savedPairs.find((p) => p.id === selectedId) || savedPairs[0];
+      async function replay(speed) {
+        const pair = S.pairs.find((p) => p.id === $("pairSelect").value) || S.pairs[0];
         if (!pair) return;
-        resetUI(["bare", "harness"]);
+        resetLanes(["bare", "harness"]);
         setRunning(true);
         const res = await fetch("/api/replay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ bare: pair.bare, harness: pair.harness, speed }),
         });
-        const data = await res.json();
-        currentSessionId = data.sessionId;
-        attachStream(currentSessionId);
+        listen((await res.json()).sessionId);
       }
 
-      $("backupSelect").addEventListener("change", () => savePairPref($("backupSelect").value));
-      $("interactiveToggle").addEventListener("change", () => {
-        if (defaultModels) setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
-      });
-      $("modelSelect").addEventListener("change", () => {
-        if (defaultModels) setRoster({ ...defaultModels, lead: $("modelSelect").value }, $("interactiveToggle").checked);
-      });
-      $("btnRunBoth").addEventListener("click", () => startRun("both"));
-      $("btnRunHarness").addEventListener("click", () => startRun("harness"));
-      $("btnReplay").addEventListener("click", () => startReplay("fast"));
-      $("btnInstant").addEventListener("click", () => startReplay("instant"));
-      $("btnStop").addEventListener("click", async () => {
-        if (!currentSessionId) return;
-        await fetch("/api/stop", {
+      async function runLive(mode) {
+        $("liveMenu").open = false;
+        const modes = mode === "both" ? ["bare", "harness"] : ["harness"];
+        resetLanes(modes);
+        const interactive = $("interactiveToggle").checked;
+        if (S.models) renderRoster({ ...S.models, lead: $("modelSelect").value }, interactive);
+        setRunning(true);
+        const res = await fetch("/api/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: currentSessionId }),
+          body: JSON.stringify({ mode, model: $("modelSelect").value, interactive }),
         });
+        listen((await res.json()).sessionId);
+      }
+
+      // ── Setup ──
+      async function loadPairs() {
+        const data = await (await fetch("/api/backups")).json();
+        S.pairs = data.pairs && data.pairs.length
+          ? data.pairs
+          : data.bare && data.harness ? [{ id: "latest", label: "Latest saved run", bare: data.bare, harness: data.harness }] : [];
+        const sel = $("pairSelect");
+        const want = sel.value || getPref();
+        sel.innerHTML = "";
+        for (const p of S.pairs) {
+          const o = document.createElement("option");
+          o.value = p.id;
+          o.textContent = String(p.label).split(" (")[0]; // "105734 · kimi-k3.1-pro + team"
+          o.title = p.label;
+          if (p.id === want) o.selected = true;
+          sel.appendChild(o);
+        }
+        if (S.pairs.length === 0) {
+          const o = document.createElement("option");
+          o.textContent = "No saved runs yet";
+          sel.appendChild(o);
+        }
+        $("btnReplay").disabled = S.pairs.length === 0;
+      }
+
+      async function init() {
+        const cfg = await (await fetch("/api/config")).json();
+        $("taskText").textContent = cfg.defaultTask;
+        S.models = cfg.defaultModels || { lead: cfg.defaultLeadModel, engineer: "—", qa: "—", user: "—" };
+        renderRoster(S.models);
+        const ms = $("modelSelect");
+        for (const m of cfg.models || []) {
+          const o = document.createElement("option");
+          o.value = m;
+          o.textContent = m;
+          if (m === cfg.defaultLeadModel) o.selected = true;
+          ms.appendChild(o);
+        }
+        await loadPairs();
+        if (S.pairs.length) replay("instant"); // show the chosen comparison immediately
+      }
+
+      $("pairSelect").addEventListener("change", () => { setPref($("pairSelect").value); replay("instant"); });
+      $("btnReplay").addEventListener("click", () => replay("normal"));
+      $("btnRunBoth").addEventListener("click", () => runLive("both"));
+      $("btnRunHarness").addEventListener("click", () => runLive("harness"));
+      $("interactiveToggle").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
+      $("modelSelect").addEventListener("change", () => S.models && renderRoster({ ...S.models, lead: $("modelSelect").value }, $("interactiveToggle").checked));
+      $("btnStop").addEventListener("click", async () => {
+        if (!S.session) return;
+        await fetch("/api/stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: S.session }) });
+        $("dialog").classList.remove("open");
         setRunning(false);
       });
-
-      loadConfig().then(() => {
-        // Pre-populate Instant comparison view if a saved run exists, so opening localhost:3810 looks great immediately!
-        if (savedPairs.length > 0) startReplay("instant");
-      });
+      init();
     </script>
   </body>
 </html>
